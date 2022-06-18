@@ -1,2 +1,3 @@
 # quinnbooth.github.io
- Personal website
+
+Quinn Booth's personal website outlining his qualifications and experiences.
