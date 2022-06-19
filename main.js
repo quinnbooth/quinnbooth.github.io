@@ -21,6 +21,8 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight); // make fullscreen canvas
 camera.position.setZ(30);
 renderer.render(scene, camera);
+const spaceBkgd = new THREE.TextureLoader().load('images/space3.jpg');
+scene.background = spaceBkgd;
 
 // Test shapes
 
