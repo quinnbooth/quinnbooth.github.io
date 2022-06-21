@@ -22,10 +22,15 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight); // make fullscreen canvas
-camera.position.setZ(30);
+camera.position.setZ(40);
 renderer.render(scene, camera);
 var visibleHeight = 2 * Math.tan((camera.fov * Math.PI / 180 /*vertical fov*/) / 2) * camera.position.z;
 var visibleWidth = visibleHeight * camera.aspect;
+camera.position.setZ(500);
+
+
+
+
 
 //#region Solar System Animation
 //#region Meshes
@@ -98,7 +103,7 @@ function runSolarSystem(state, rad0, planetRot, ringRot, planetSpeed, region) {
             maxDimension = visibleHeight;
         }
         var rad = maxDimension / 20;
-        scene.background = spaceBkgd;
+        //scene.background = spaceBkgd;
         scene.add(sun);
         for (let i = 1; i < planets.length; i++) {  // Add planets on respective orbits
             scene.add(planets[i]);
@@ -167,17 +172,46 @@ function runSolarSystem(state, rad0, planetRot, ringRot, planetSpeed, region) {
 //#endregion Function
 //#endregion Solar System Animation
 
+//#region Initial Zoom Animation
+const starsShape = new THREE.BufferGeometry();
+var starsShapeVertices = new Float32Array(9000);
+for (let i = 0; i < 9000; i++) starsShapeVertices[i] = Math.random() * 600 - 300;
+starsShape.setAttribute('position', new THREE.BufferAttribute(starsShapeVertices, 3));
+let starTexture = new THREE.TextureLoader().load('/images/star1.png');
+let starMaterial = new THREE.PointsMaterial({color: 0xAAAAAA, size: 0.75, map: starTexture, transparent: true});
+const stars = new THREE.Points(starsShape, starMaterial);
+scene.add(stars);
+
+function initialZoom() {
+    if (camera.position.z > 55) {
+        camera.position.z -= camVelZ;
+        stars.rotation.z += 0.0012;
+    } else if (camera.position.z > 45) {
+        camVelZ += -0.03;
+        if (camVelZ < 0.1) camVelZ = 0.1;
+        camera.position.z -= camVelZ;
+        stars.rotation.z += 0.0005;
+    } else {
+        stars.rotation.z += 0.000075;
+    }
+    if (camera.rotation.x < .25) camera.rotation.x += 0.00041;
+    if (camera.position.y > -15) camera.position.y -= (7 / 250);
+}
+//#endregion Initial Zoon Animation
+
+
+
+
+
 // Runs constant animation of scene in browser
-var a = 0;
+
+var camVelZ = 0.75;
 function constRender() {
     requestAnimationFrame(constRender); // tells browser animation is to be performed
-    a++;
-    if (a < 100) {
-        runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
-    } else if (a == 101) {
-        runSolarSystem(2, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
-        a = 0;
-    }
+    
+    runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
+    initialZoom();
+
     renderer.render(scene, camera);
 }
 constRender();
