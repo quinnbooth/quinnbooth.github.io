@@ -10,6 +10,8 @@ import * as THREE from 'https://unpkg.com/three@0.127.0/build/three.module.js'
 // npm run deploy: links http://quinnbooth.github.io to index.html file in dist directory (will take a few minutes after it says it's complete in terminal to load online)
 // More information: https://sbcode.net/threejs/github-pages/
 
+//================================================================================================================
+
 // Setup render
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); // (FOV, Aspect Ratio based on user's browser window, (View Frustrum: 1st arg is how close to camera user can see, 2nd is how far))
@@ -21,17 +23,9 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight); // make fullscreen canvas
 camera.position.setZ(30);
 renderer.render(scene, camera);
-const spaceBkgd = new THREE.TextureLoader().load('images/space3.jpg');
-scene.background = spaceBkgd;
 
-// Test shapes
-
-var maxDimension = window.innerWidth;
-if (window.innerHeight < maxDimension) {
-    maxDimension = window.innerHeight;
-}
-const ringRadius = maxDimension / 250;
-
+//#region Solar System Animation
+//#region Meshes
 const sunShape = new THREE.SphereGeometry(3, 100, 10, 1000);
 const mercuryShape = new THREE.SphereGeometry(1, 100, 10, 1000);
 const venusShape = new THREE.SphereGeometry(1.3, 100, 10, 1000);
@@ -73,102 +67,99 @@ const uranus = new THREE.Mesh(uranusShape, uranusColor);
 const uranusRing = new THREE.Mesh(uranusRingShape, uranusRingColor);
 const neptune = new THREE.Mesh(neptuneShape, neptuneColor);
 const neptuneRing = new THREE.Mesh(neptuneRingShape, neptuneRingColor);
-
-function pointOnCircle(radius) {
-    var angle = 2 * Math.PI * Math.random();
-    return [radius * Math.cos(angle), radius * Math.sin(angle)];
+//#endregion Meshes
+//#region Function
+var maxDimension = window.innerWidth;
+if (window.innerHeight < maxDimension) {
+    maxDimension = window.innerHeight;
 }
-
-var currentRadius = ringRadius;
-const planets = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune];
-const ringedPlanets = [jupiter, saturn, uranus, neptune];
-const rings = [jupiterRing, saturnRing, uranusRing, neptuneRing];
-for (const planet of planets) {
-    var coordinates = pointOnCircle(currentRadius);
-    planet.position.x = coordinates[0];
-    planet.position.y = coordinates[1];
-    currentRadius += ringRadius;
-    scene.add(planet);
-}
-scene.add(sun);
-
-for (const ring of rings) {
-    scene.add(ring);
-}
-
-function rotateMesh(mesh, x, y, z) {
-    mesh.rotation.x += x;
-    mesh.rotation.y += y;
-    mesh.rotation.z += z;
-}
-
-function matchCoords(ring, planet) {
-    ring.position.x = planet.position.x;
-    ring.position.y = planet.position.y;
-}
-
-const jupiterRingRotations = [.005 * Math.random(), .005 * Math.random(), .005 * Math.random()];
-const saturnRingRotations = [.005 * Math.random(), .005 * Math.random(), .005 * Math.random()];
-const uranusRingRotations = [.005 * Math.random(), .005 * Math.random(), .005 * Math.random()];
-const neptuneRingRotations = [.005 * Math.random(), .005 * Math.random(), .005 * Math.random()];
-const ringRotations = [jupiterRingRotations, saturnRingRotations, uranusRingRotations, neptuneRingRotations];
-
-const planetBools = [0, 1, 0, 0, 1, 0, 0, 0];
-var planetSpeeds = [0, 0, 0, 0, 0, 0, 0, 0];
-for (let i = 0; i < 8; i++) {
-    planetSpeeds[i] = .005 * Math.random();
-}
-
-function orbitMesh(planet, speed, region) {
-    var x = planet.position.x;
-    var y = planet.position.y;
-    var radius = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-    var angle = Math.acos(x / radius);
-    if (region == 0) {
-        angle = Math.acos(x / radius);
-    } else {
-        angle = -1 * Math.acos(x / radius);
-    }
-    //console.log(angle);
-    angle += speed;
-    planet.position.x = radius * Math.cos(angle);
-    planet.position.y = radius * Math.sin(angle);
-    if (Math.abs(angle - Math.PI) < speed) {
-        //console.log(region);
-        angle = Math.PI + 0.001;
-        if (region == 0){
-            return 1;
-        } else {
-            return 0;
+const ringRadius = maxDimension / 250;
+var solarSystem = 0;
+var planetSpeed = [];
+var ringRot = [];
+var regions = [];
+function runSolarSystem(state, rad0, rad, planetRot, ringRot, planetSpeed, regions) {
+    /*
+    state: setup/animate/delete
+    rad0: rad between sun and mercury
+    rad: rad between rest of planets
+    planetRots: planet rotation speeds
+    ringRots: empty array to store ring rotation speeds
+    planetSpeed: empty array to store planet orbit speeds
+    regions: empty array to store info on whether planet is on top or bottom half of screen
+    */
+    const planets = [sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune];
+    const ringedPlanets = [jupiter, saturn, uranus, neptune];
+    const rings = [jupiterRing, saturnRing, uranusRing, neptuneRing];
+    if (state == 0) {   // Set up solar system
+        const spaceBkgd = new THREE.TextureLoader().load('images/space3.jpg');
+        scene.background = spaceBkgd;
+        scene.add(sun);
+        for (let i = 1; i < planets.length; i++) {  // Add planets on respective orbits
+            scene.add(planets[i]);
+            var angle = 2 * Math.PI * Math.random();
+            planets[i].position.set(rad0 * Math.cos(angle), rad0 * Math.sin(angle), 0);
+            rad0 += rad;
+            planetSpeed.push(.005 * Math.random()); // Generate random planet orbit speeds
+            regions.push(0);
+        }
+        for (let i = 0; i < rings.length; i++) {    // Add rings and match coords to planets
+            scene.add(rings[i]);
+            rings[i].position.set(ringedPlanets[i].position.x, ringedPlanets[i].position.y, 0);
+            ringRot.push([.005 * Math.random(), .005 * Math.random(), .005 * Math.random()]);   // Generate random ring rotation speeds
+        }
+        solarSystem = 1;
+    } else if (state == 1) {    // Animate solar system
+        planets[0].rotation.x += planetRot[0];  // Rotate sun
+        planets[0].rotation.y += planetRot[1];
+        planets[0].rotation.z += planetRot[2];
+        for (let i = 1; i < planets.length; i++) {  // Rotate & orbit planets
+            planets[i].rotation.x += planetRot[0];
+            planets[i].rotation.y += planetRot[1];
+            planets[i].rotation.z += planetRot[2];
+            var x = planets[i].position.x;
+            var y = planets[i].position.y;
+            var radius = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+            var angle = Math.acos(x / radius) * (-2 * regions[i] + 1) + planetSpeed[i];
+            planets[i].position.x = radius * Math.cos(angle);
+            planets[i].position.y = radius * Math.sin(angle);
+            if (Math.abs(angle - Math.PI) < planetSpeed[i]) {
+                angle = Math.PI + 0.001;
+                regions[i] = -1 * regions[i] + 1;
+            } else if (Math.abs(angle) < planetSpeed[i]) {
+                angle = 0.001;
+                regions[i] = -1 * regions[i] + 1;
+            }
+        }
+        for (let i = 0; i < rings.length; i++) {    // Rotate & orbit rings
+            rings[i].rotation.x += ringRot[i][0];
+            rings[i].rotation.y += ringRot[i][1];
+            rings[i].rotation.z += ringRot[i][2];
+            rings[i].position.set(ringedPlanets[i].position.x, ringedPlanets[i].position.y, 0);
+        }
+    } else {    // Delete solar system
+        solarSystem = 0;
+        planetSpeed = [];
+        ringRot = [];
+        regions = [];
+        scene.background = new THREE.Color(0x000000);
+        for (const planet of planets) {
+            scene.remove(planet);
+        }
+        for (const ring of rings) {
+            scene.remove(ring);
         }
     }
-    if (Math.abs(angle) < speed) {
-        //console.log(region);
-        angle = 0 + 0.001;
-        if (region == 0){
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-    return region;
 }
+//#endregion Function
+//#endregion Solar System Animation
+
 
 // Runs constant animation of scene in browser
 function constRender() {
     requestAnimationFrame(constRender); // tells browser animation is to be performed
-    //var currentRadius = 0;
-    rotateMesh(sun, 0.002, 0.001, 0.003);
-    for (let i = 0; i < 8; i++) {
-        planetBools[i] = orbitMesh(planets[i], planetSpeeds[i], planetBools[i]);
-        rotateMesh(planets[i], 0.002, 0.001, 0.003);
-        //currentRadius += ringRadius;
-    }
-    console.log(planetBools);
-    for (let i = 0; i < 4; i++) {
-        matchCoords(rings[i], ringedPlanets[i]);
-        rotateMesh(rings[i], ringRotations[i][0], ringRotations[i][1], ringRotations[i][2]);
-    }
+    
+    runSolarSystem(solarSystem, 5, ringRadius, [0.002, 0.001, 0.003], ringRot, planetSpeed, regions);
 
     renderer.render(scene, camera);
 }
