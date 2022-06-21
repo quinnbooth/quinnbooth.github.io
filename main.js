@@ -11,6 +11,14 @@ import * as THREE from 'https://unpkg.com/three@0.127.0/build/three.module.js'
 // More information: https://sbcode.net/threejs/github-pages/
 
 //================================================================================================================
+//  
+//  Ideas:
+//
+//  Add background?
+//  Orbit controls?
+//  Make sun into light source?
+//
+//================================================================================================================
 
 // Setup render
 var fov = 75;
@@ -27,8 +35,11 @@ renderer.render(scene, camera);
 var visibleHeight = 2 * Math.tan((camera.fov * Math.PI / 180 /*vertical fov*/) / 2) * camera.position.z;
 var visibleWidth = visibleHeight * camera.aspect;
 camera.position.setZ(500);
-
-
+const sunLight = new THREE.PointLight(0xFFFFFF);
+const ambLight = new THREE.AmbientLight(0xFFFFFF);
+ambLight.intensity = 0.5;
+scene.add(sunLight);
+scene.add(ambLight);
 
 
 
@@ -51,6 +62,8 @@ const uranusRingShape = new THREE.CircleGeometry(2.5, 100, 0, 1000);
 const neptuneShape = new THREE.SphereGeometry(1.6, 100, 10, 1000);
 const neptuneRingShape = new THREE.CircleGeometry(2.4, 100, 0, 1000);
 
+//#region No Light Needed
+/*
 const sunColor = new THREE.MeshBasicMaterial({color: 0xF25C02, wireframe: false});
 const mercuryColor = new THREE.MeshBasicMaterial({color: 0xB94500, wireframe: false});
 const venusColor = new THREE.MeshBasicMaterial({color: 0xD7AB3D, wireframe: false});
@@ -64,6 +77,22 @@ const uranusColor = new THREE.MeshBasicMaterial({color: 0xB6EEF3, wireframe: fal
 const uranusRingColor = new THREE.MeshBasicMaterial({color: 0xCEF5F8, wireframe: true});
 const neptuneColor = new THREE.MeshBasicMaterial({color: 0x1D65E2, wireframe: false});
 const neptuneRingColor = new THREE.MeshBasicMaterial({color: 0x6491DF, wireframe: true});
+*/
+//#endregion No Light Needed
+
+const sunColor = new THREE.MeshBasicMaterial({color: 0xF25C02, wireframe: false});
+const mercuryColor = new THREE.MeshStandardMaterial({color: 0xB94500, wireframe: false});
+const venusColor = new THREE.MeshStandardMaterial({color: 0xD7AB3D, wireframe: false});
+const earthColor = new THREE.MeshStandardMaterial({color: 0x3E88E1, wireframe: false});
+const marsColor = new THREE.MeshStandardMaterial({color: 0xBC3A00, wireframe: false});
+const jupiterColor = new THREE.MeshStandardMaterial({color: 0xE3C059, wireframe: false});
+const jupiterRingColor = new THREE.MeshStandardMaterial({color: 0xE9d18C, wireframe: true});
+const saturnColor = new THREE.MeshStandardMaterial({color: 0xE5BD68, wireframe: false});
+const saturnRingColor = new THREE.MeshStandardMaterial({color: 0xD2C19D, wireframe: true});
+const uranusColor = new THREE.MeshStandardMaterial({color: 0xB6EEF3, wireframe: false});
+const uranusRingColor = new THREE.MeshStandardMaterial({color: 0xCEF5F8, wireframe: true});
+const neptuneColor = new THREE.MeshStandardMaterial({color: 0x1D65E2, wireframe: false});
+const neptuneRingColor = new THREE.MeshStandardMaterial({color: 0x6491DF, wireframe: true});
 
 const sun = new THREE.Mesh(sunShape, sunColor);
 const mercury = new THREE.Mesh(mercuryShape, mercuryColor);
@@ -78,6 +107,7 @@ const uranus = new THREE.Mesh(uranusShape, uranusColor);
 const uranusRing = new THREE.Mesh(uranusRingShape, uranusRingColor);
 const neptune = new THREE.Mesh(neptuneShape, neptuneColor);
 const neptuneRing = new THREE.Mesh(neptuneRingShape, neptuneRingColor);
+
 //#endregion Meshes
 //#region Function
 var solarSystem = 0;
@@ -182,6 +212,7 @@ let starMaterial = new THREE.PointsMaterial({color: 0xAAAAAA, size: 0.75, map: s
 const stars = new THREE.Points(starsShape, starMaterial);
 scene.add(stars);
 
+var camVelZ = 0.75;
 function initialZoom() {
     if (camera.position.z > 55) {
         camera.position.z -= camVelZ;
@@ -201,11 +232,7 @@ function initialZoom() {
 
 
 
-
-
 // Runs constant animation of scene in browser
-
-var camVelZ = 0.75;
 function constRender() {
     requestAnimationFrame(constRender); // tells browser animation is to be performed
     
