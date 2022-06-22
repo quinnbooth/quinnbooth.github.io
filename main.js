@@ -1,4 +1,8 @@
-import * as THREE from 'https://unpkg.com/three@0.127.0/build/three.module.js'
+//import * as THREE from 'https://unpkg.com/three@0.127.0/build/three.module.js'
+//import * as THREE from '/node_modules/three/build/three.module.js';
+//import { GLTFLoader } from '/node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/GLTFLoader.js';
 
 // For testing/troubleshooting
 // npm run dev: hosts local site
@@ -16,7 +20,8 @@ import * as THREE from 'https://unpkg.com/three@0.127.0/build/three.module.js'
 //
 //  Add background?
 //  Orbit controls?
-//  Make sun into light source?
+//  Import three.js from node_modules? (not sure if this is good practice)
+//      - Maybe download my own js files for this and put in src folder using wget()
 //
 //================================================================================================================
 
@@ -40,6 +45,7 @@ const ambLight = new THREE.AmbientLight(0xFFFFFF);
 ambLight.intensity = 0.5;
 scene.add(sunLight);
 scene.add(ambLight);
+const gltfLoader = new GLTFLoader();
 
 
 
@@ -230,6 +236,29 @@ function initialZoom() {
 }
 //#endregion Initial Zoon Animation
 
+//#region Space Ship Animation
+const spaceshipLight = new THREE.PointLight(0xFFFFFF);
+spaceshipLight.intensity = 2;
+scene.add(spaceshipLight);
+spaceshipLight.position.set(-2, -2, 502);
+var spaceship;
+gltfLoader.load('/models/gltf/spaceship1.glb', (gltf) => {
+    gltf.scene.scale.set(0.3, 0.3, 0.3);
+    //gltf.scene.position.set(-0.7, -1, 497);
+    gltf.scene.position.set(-4.5, -0.7, 497);
+    gltf.scene.rotation.set(Math.PI / 7, -1 * Math.PI / 7, 0);
+    spaceship = gltf.scene;
+    scene.add(spaceship)
+});
+
+function runSpaceShip(state) {
+    if (state == 0) {
+        if (spaceship.position.x < -0.7) spaceship.position.x += 0.01;
+        if (spaceship.position.y > -1) spaceship.position.y -= 0.0008;
+    }
+}
+//#endregion Space Ship Animation
+
 
 
 // Runs constant animation of scene in browser
@@ -237,7 +266,8 @@ function constRender() {
     requestAnimationFrame(constRender); // tells browser animation is to be performed
     
     runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
-    initialZoom();
+    if (spaceship) runSpaceShip(0);
+    //initialZoom();
 
     renderer.render(scene, camera);
 }
