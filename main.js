@@ -18,14 +18,18 @@ import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/
 //  
 //  Ideas:
 //
+//  Animated typing text: 'click anywhere to start' with flashing bar
+//  Fire behind ship
 //  Add background?
 //  Orbit controls?
 //  Import three.js from node_modules? (not sure if this is good practice)
 //      - Maybe download my own js files for this and put in src folder using wget()
+//      - Could also use webpack? It might build modules into the bundle. Look into this?
 //
 //================================================================================================================
 
 // Setup render
+var stage = 0;
 var fov = 75;
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 1000); // (FOV, Aspect Ratio based on user's browser window, (View Frustrum: 1st arg is how close to camera user can see, 2nd is how far))
@@ -218,21 +222,27 @@ let starMaterial = new THREE.PointsMaterial({color: 0xAAAAAA, size: 0.75, map: s
 const stars = new THREE.Points(starsShape, starMaterial);
 scene.add(stars);
 
-var camVelZ = 0.75;
+var zbool = 0;
+var rotbool = 0;
+var ybool = 0;
+var camVelZ = 0;
+var starRotSpd = 0;
 function initialZoom() {
-    if (camera.position.z > 55) {
-        camera.position.z -= camVelZ;
-        stars.rotation.z += 0.0012;
+    if (camera.position.z > 250) {
+        camera.position.z += camVelZ;
+        camVelZ -= 0.001;
+        if (starRotSpd < 0.0012) starRotSpd += 0.000003;
+        stars.rotation.z += starRotSpd;
     } else if (camera.position.z > 45) {
-        camVelZ += -0.03;
-        if (camVelZ < 0.1) camVelZ = 0.1;
-        camera.position.z -= camVelZ;
-        stars.rotation.z += 0.0005;
+        camera.position.z += camVelZ;
+        camVelZ += 0.001225;
+        if (starRotSpd > 0.000075) starRotSpd -= 0.000003;
+        stars.rotation.z += starRotSpd;
     } else {
         stars.rotation.z += 0.000075;
     }
-    if (camera.rotation.x < .25) camera.rotation.x += 0.00041;
-    if (camera.position.y > -15) camera.position.y -= (7 / 250);
+    if (camera.rotation.x < .25) camera.rotation.x += 0.00020;
+    if (camera.position.y > -15) camera.position.y -= (6 / 500);
 }
 //#endregion Initial Zoon Animation
 
@@ -241,33 +251,109 @@ const spaceshipLight = new THREE.PointLight(0xFFFFFF);
 spaceshipLight.intensity = 2;
 scene.add(spaceshipLight);
 spaceshipLight.position.set(-2, -2, 502);
-var spaceship;
+var spaceship = new THREE.Mesh();
 gltfLoader.load('/models/gltf/spaceship1.glb', (gltf) => {
     gltf.scene.scale.set(0.3, 0.3, 0.3);
-    //gltf.scene.position.set(-0.7, -1, 497);
-    gltf.scene.position.set(-4.5, -0.7, 497);
-    gltf.scene.rotation.set(Math.PI / 7, -1 * Math.PI / 7, 0);
+    gltf.scene.position.set(-4.5, 0.3, 498);
+    gltf.scene.rotation.set(Math.PI / 9, -1 * Math.PI / 7, 0);
     spaceship = gltf.scene;
-    scene.add(spaceship)
+    scene.add(spaceship);
 });
 
+var spaceshipIdleCount = 0;
+function idleSpaceShip(state) {
+    if (state == 0) {
+        if (spaceshipIdleCount == 100845) spaceshipIdleCount = 0;
+        spaceship.rotation.x = -0.05 * Math.sin(spaceshipIdleCount / 300) + Math.PI / 10;
+        console.log(spaceshipIdleCount);
+        spaceshipIdleCount++;
+    }
+}
+
+var spaceshipVelX = 0.01;
+var spaceshipVelY = -0.00085;
+const spaceshipAccX = -0.0000143;
+const spaceshipAccY = 0.0000012;
 function runSpaceShip(state) {
     if (state == 0) {
-        if (spaceship.position.x < -0.7) spaceship.position.x += 0.01;
-        if (spaceship.position.y > -1) spaceship.position.y -= 0.0008;
+        if (spaceship.position.x < -1) {
+            spaceship.position.x += spaceshipVelX;
+            spaceshipVelX += spaceshipAccX;
+        }
+        if (spaceship.position.y > 0) {
+            spaceship.position.y += spaceshipVelY;
+            spaceshipVelY += spaceshipAccY;
+        }
+        idleSpaceShip(0);
+        stars.rotation.z += 0.000075;
+    } else if (state == 1) {
+        if (spaceship.position.x < 6) {
+            spaceship.position.x += spaceshipVelX;
+            spaceshipVelX -= 2 * spaceshipAccX;
+        }
+        if (spaceship.position.y > -0.5) {
+            spaceship.position.y += spaceshipVelY;
+            spaceshipVelY -= 2 * spaceshipAccY;
+        }
+        idleSpaceShip(0);
+        if (spaceshipLight.intensity > 0) spaceshipLight.intensity = spaceshipLight.intensity - 0.004;
+        if (spaceship.position.x >= 6 && spaceship.position.y <= -0.5) {
+            stage++;
+            scene.remove(spaceshipLight);
+        }
+        stars.rotation.z += 0.000075;
     }
 }
 //#endregion Space Ship Animation
 
+//#region Fire Animation
+/*const fireIntricacy = 10;
+const fireShape = new THREE.BufferGeometry();
+var fireShapeVertices = new Float32Array(3 * fireIntricacy);
+let fireTexture = new THREE.TextureLoader().load('/images/fire2.png');
+let fireMaterial = new THREE.PointsMaterial({color: 0xAAAAAA, size: 0.1, map: fireTexture, transparent: true});
+var fire = new THREE.Points(fireShape, fireMaterial);
+//var fire = new THREE.Points(fireShape, fireMaterial);
+scene.add(fire);
+
+function randomFire() {
+    for (let i = 0; i < 3 * fireIntricacy; i++) fireShapeVertices[i] = (Math.random() * 2 - 1) * 0.25;
+    fireShape.setAttribute('position', new THREE.BufferAttribute(fireShapeVertices, 3));
+    fire.geometry.attributes.position.needsUpdate = true;
+}
+randomFire();*/
+
+//const fireCone = new THREE.ConeGeometry();
+
+//#endregion Fire Animation
+
+//#region Detect Events
+// Detects mouse click
+window.addEventListener('click', function(e) {
+    if (stage == 0 && spaceship.position.x >= -1 && spaceship.position.y <= 0) {
+        stage = 1;
+    }
+});
+
+// Resizes canvas when window changes size
+window.addEventListener('resize', function() {
+    camera.aspect = window.innerWidth / this.window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+//#endregion Detect Events
+
+
 
 
 // Runs constant animation of scene in browser
+var a = 0;
 function constRender() {
     requestAnimationFrame(constRender); // tells browser animation is to be performed
     
     runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
-    if (spaceship) runSpaceShip(0);
-    //initialZoom();
+    runSpaceShip(stage);
+    if (stage == 2) initialZoom();
 
     renderer.render(scene, camera);
 }
