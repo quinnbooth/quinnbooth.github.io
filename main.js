@@ -15,6 +15,8 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 // npm run deploy: links http://quinnbooth.github.io to index.html file in dist directory (will take a few minutes after it says it's complete in terminal to load online)
 // More information: https://sbcode.net/threejs/github-pages/
 
+// Use facetype.js to convert fonts in .ttf to .json
+
 //================================================================================================================
 //  
 //  Ideas:
@@ -39,6 +41,7 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight); // make fullscreen canvas
+renderer.shadowMap.enabled = true;
 camera.position.setZ(40);
 renderer.render(scene, camera);
 var visibleHeight = 2 * Math.tan((camera.fov * Math.PI / 180 /*vertical fov*/) / 2) * camera.position.z;
@@ -53,6 +56,7 @@ const gltfLoader = new GLTFLoader();
 var clock = new THREE.Clock();
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enabled = false;
+const fontLoader = new THREE.FontLoader();
 
 
 
@@ -244,6 +248,7 @@ function initialZoom() {
         if (removeTextBool) {
             scene.remove(typingtext);
             removeTextBool = false;
+            instructions1Stage = 1;
             stage++;
         }
     }
@@ -358,6 +363,8 @@ gltfLoader.load('/models/gltf/typingtext1.glb', (gltf) => {
 window.addEventListener('click', function(e) {
     if (stage == 0 && spaceship.position.x >= -1 && spaceship.position.y <= 0) {
         stage = 1;
+    } else if (stage == 3 && instructions1Stage == 2) {
+        instructions1Stage++;
     }
 });
 
@@ -370,21 +377,80 @@ window.addEventListener('resize', function() {
 //#endregion Detect Events
 
 
+var instructions1Stage = 0;
+let instructions1 = "Scroll to zoom\nDrag to rotate\nClick Sun to pause planets\nClick planet to expore contents";
+let instructionsMesh = new THREE.Mesh();
+fontLoader.load('/models/fonts/Cairo_Bold.json', (font) => {
+    const instructions1Shape = new THREE.TextGeometry(instructions1, {
+        font: font,
+        size: 1.25,
+        height: 0.1,
+    });
+    instructionsMesh = new THREE.Mesh(instructions1Shape, [
+        new THREE.MeshPhongMaterial({color: 0xFFFFFF, transparent: true}),
+        new THREE.MeshPhongMaterial({color: 0X333333, transparent: true}),
+    ]);
+    instructionsMesh.position.set(-40, -15, 0);
+    instructionsMesh.material[0].opacity = 0;
+    instructionsMesh.material[1].opacity = 0;
+    scene.add(instructionsMesh);
+});
+
+function instruction1(state) {
+    if (instructionsMesh && instructionsMesh.material[0] && instructionsMesh.material[1]) {
+        if (state == 1) {
+            if (instructionsMesh.material[0].opacity < 1 && instructionsMesh.material[1].opacity < 1) {
+                instructionsMesh.material[0].opacity += 0.002;
+                instructionsMesh.material[1].opacity += 0.002;
+            } else {
+                instructions1Stage++;
+            }
+        } else if (state == 3) {
+            if (instructionsMesh.material[0].opacity <= 0 && instructionsMesh.material[1].opacity <= 0) {
+
+            } else {
+                instructionsMesh.material[0].opacity -= 0.001;
+                instructionsMesh.material[1].opacity -= 0.001;
+            }
+        }
+        instructionsMesh.lookAt(camera.position.x, camera.position.y, camera.position.z);
+    }
+}
+
+
+
+var skipIntro = false;
+
+
 
 // Runs constant animation of scene in browser
-var a = 0;
+var skipIntroHelper = true;
 function constRender() {
     requestAnimationFrame(constRender); // tells browser animation is to be performed
     var delta = clock.getDelta();
     if (mixer) mixer.update(delta);
+  
+    if (!skipIntro) {
+        runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
+        if (spaceship) runSpaceShip(stage);
+        if (stage == 2) initialZoom();
+        if (stage == 3) {
+            controls.enabled = true;
+            instruction1(instructions1Stage);
+        }
+    } else {
+        if (skipIntroHelper) {
+            camera.position.setZ(40);
+            instructions1Stage = 1;
+            skipIntroHelper = false;
+        }
+        controls.enabled = true;
+        runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
+        instruction1(instructions1Stage);
+        stage = 3;
+    }
 
-    runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
-    runSpaceShip(stage);
-    if (stage == 2) initialZoom();
-    if (stage == 3) controls.enabled = true;
     controls.update();
-
-
     renderer.render(scene, camera);
 }
 constRender();
