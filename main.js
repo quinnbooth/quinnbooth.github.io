@@ -3,6 +3,7 @@
 //import { GLTFLoader } from '/node_modules/three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/GLTFLoader.js';
+import { FBXLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/FBXLoader.js';
 
 // For testing/troubleshooting
 // npm run dev: hosts local site
@@ -50,6 +51,7 @@ ambLight.intensity = 0.5;
 scene.add(sunLight);
 scene.add(ambLight);
 const gltfLoader = new GLTFLoader();
+var clock = new THREE.Clock();
 
 
 
@@ -222,9 +224,7 @@ let starMaterial = new THREE.PointsMaterial({color: 0xAAAAAA, size: 0.75, map: s
 const stars = new THREE.Points(starsShape, starMaterial);
 scene.add(stars);
 
-var zbool = 0;
-var rotbool = 0;
-var ybool = 0;
+var removeTextBool = true;
 var camVelZ = 0;
 var starRotSpd = 0;
 function initialZoom() {
@@ -240,6 +240,10 @@ function initialZoom() {
         stars.rotation.z += starRotSpd;
     } else {
         stars.rotation.z += 0.000075;
+        if (removeTextBool) {
+            scene.remove(typingtext);
+            removeTextBool = false;
+        }
     }
     if (camera.rotation.x < .25) camera.rotation.x += 0.00020;
     if (camera.position.y > -15) camera.position.y -= (6 / 500);
@@ -265,7 +269,6 @@ function idleSpaceShip(state) {
     if (state == 0) {
         if (spaceshipIdleCount == 100845) spaceshipIdleCount = 0;
         spaceship.rotation.x = -0.05 * Math.sin(spaceshipIdleCount / 300) + Math.PI / 10;
-        console.log(spaceshipIdleCount);
         spaceshipIdleCount++;
     }
 }
@@ -284,6 +287,7 @@ function runSpaceShip(state) {
             spaceship.position.y += spaceshipVelY;
             spaceshipVelY += spaceshipAccY;
         }
+        if (spaceship.position.x >= -1 && spaceship.position.y <= 0 && textAnimation) textAnimation.play();
         idleSpaceShip(0);
         stars.rotation.z += 0.000075;
     } else if (state == 1) {
@@ -327,6 +331,26 @@ randomFire();*/
 
 //#endregion Fire Animation
 
+//#region Typing Text Animation
+let mixer;
+let typingtext;
+let textAnimation;
+gltfLoader.load('/models/gltf/typingtext1.glb', (gltf) => {
+    typingtext = gltf.scene;
+    typingtext.scale.set(0.25, 0.01, 0.25);
+    typingtext.position.set(0, 0.65, 499);
+    typingtext.rotation.set(90, 0, 0);
+    scene.add(typingtext);
+    mixer = new THREE.AnimationMixer(typingtext);
+    gltf.animations.forEach((clip) => {
+        textAnimation = mixer.clipAction(clip);
+        textAnimation.setLoop(THREE.LoopOnce);
+        textAnimation.clampWhenFinished = true;
+        textAnimation.enable = true;
+    });
+});
+//#endregion Typing Text Animation
+
 //#region Detect Events
 // Detects mouse click
 window.addEventListener('click', function(e) {
@@ -345,12 +369,13 @@ window.addEventListener('resize', function() {
 
 
 
-
 // Runs constant animation of scene in browser
 var a = 0;
 function constRender() {
     requestAnimationFrame(constRender); // tells browser animation is to be performed
-    
+    var delta = clock.getDelta();
+    if (mixer) mixer.update(delta);
+
     runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
     runSpaceShip(stage);
     if (stage == 2) initialZoom();
