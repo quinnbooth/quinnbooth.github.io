@@ -3,7 +3,7 @@
 //import { GLTFLoader } from '/node_modules/three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/GLTFLoader.js';
-import { FBXLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/FBXLoader.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
 
 // For testing/troubleshooting
 // npm run dev: hosts local site
@@ -19,7 +19,6 @@ import { FBXLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/j
 //  
 //  Ideas:
 //
-//  Animated typing text: 'click anywhere to start' with flashing bar
 //  Fire behind ship
 //  Add background?
 //  Orbit controls?
@@ -52,6 +51,8 @@ scene.add(sunLight);
 scene.add(ambLight);
 const gltfLoader = new GLTFLoader();
 var clock = new THREE.Clock();
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enabled = false;
 
 
 
@@ -243,6 +244,7 @@ function initialZoom() {
         if (removeTextBool) {
             scene.remove(typingtext);
             removeTextBool = false;
+            stage++;
         }
     }
     if (camera.rotation.x < .25) camera.rotation.x += 0.00020;
@@ -379,6 +381,9 @@ function constRender() {
     runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
     runSpaceShip(stage);
     if (stage == 2) initialZoom();
+    if (stage == 3) controls.enabled = true;
+    controls.update();
+
 
     renderer.render(scene, camera);
 }
