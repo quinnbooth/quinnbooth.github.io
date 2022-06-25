@@ -1,9 +1,8 @@
-//import * as THREE from 'https://unpkg.com/three@0.127.0/build/three.module.js'
-//import * as THREE from '/node_modules/three/build/three.module.js';
-//import { GLTFLoader } from '/node_modules/three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
+
+//======= Ideas & Notes ===========================================================================================
 
 // For testing/troubleshooting
 // npm run dev: hosts local site
@@ -17,48 +16,46 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 
 // Use facetype.js to convert fonts in .ttf to .json
 
-//================================================================================================================
-//  
-//  Ideas:
+// Ideas:
 //
-//  Fire behind ship
-//  Add background?
-//  Orbit controls?
-//  Import three.js from node_modules? (not sure if this is good practice)
-//      - Maybe download my own js files for this and put in src folder using wget()
-//      - Could also use webpack? It might build modules into the bundle. Look into this?
-//
-//================================================================================================================
+// Fire behind ship
+// Add background?
+// Orbit controls?
+// Import three.js from node_modules? (not sure if this is good practice)
+//  - Maybe download my own js files for this and put in src folder using wget()
+//  - Could also use webpack? It might build modules into the bundle. Look into this?
 
-// Setup render
-var stage = 0;
-var fov = 75;
+//======= Setup ===================================================================================================
+
+let stage = 0;
+let orbitBool = 1;
+let fov = 75;
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 1000); // (FOV, Aspect Ratio based on user's browser window, (View Frustrum: 1st arg is how close to camera user can see, 2nd is how far))
-const renderer = new THREE.WebGLRenderer({
-    canvas: document.querySelector('#bg'),
-    antialias: true,
-});
+const renderer = new THREE.WebGLRenderer({canvas: document.querySelector('#bg'), antialias: true});
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight); // make fullscreen canvas
 renderer.shadowMap.enabled = true;
-camera.position.setZ(40);
 renderer.render(scene, camera);
-var visibleHeight = 2 * Math.tan((camera.fov * Math.PI / 180 /*vertical fov*/) / 2) * camera.position.z;
-var visibleWidth = visibleHeight * camera.aspect;
+camera.position.setZ(40);
+let visibleHeight = 2 * Math.tan((camera.fov * Math.PI / 180 /*vertical fov*/) / 2) * camera.position.z;
+let visibleWidth = visibleHeight * camera.aspect;
 camera.position.setZ(500);
+let clock = new THREE.Clock();
 const sunLight = new THREE.PointLight(0xFFFFFF);
 const ambLight = new THREE.AmbientLight(0xFFFFFF);
 ambLight.intensity = 0.5;
 scene.add(sunLight);
 scene.add(ambLight);
 const gltfLoader = new GLTFLoader();
-var clock = new THREE.Clock();
+const fontLoader = new THREE.FontLoader();
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enabled = false;
-const fontLoader = new THREE.FontLoader();
+const mousePos = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
 
 
+//======= Animations =============================================================================================
 
 //#region Solar System Animation
 //#region Meshes
@@ -131,6 +128,7 @@ var solarSystem = 0;
 var planetSpeeds = [];
 var ringRots = [];
 var regions = [];
+const planets = [sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune];
 function runSolarSystem(state, rad0, planetRot, ringRot, planetSpeed, region) {
     /*
     state: setup/animate/delete
@@ -141,7 +139,6 @@ function runSolarSystem(state, rad0, planetRot, ringRot, planetSpeed, region) {
     planetSpeed: empty array to store planet orbit speeds
     regions: empty array to store info on whether planet is on top or bottom half of screen
     */
-    const planets = [sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune];
     const ringedPlanets = [jupiter, saturn, uranus, neptune];
     const rings = [jupiterRing, saturnRing, uranusRing, neptuneRing];
     if (state == 0) {   // Set up solar system
@@ -358,25 +355,7 @@ gltfLoader.load('/models/gltf/typingtext1.glb', (gltf) => {
 });
 //#endregion Typing Text Animation
 
-//#region Detect Events
-// Detects mouse click
-window.addEventListener('click', function(e) {
-    if (stage == 0 && spaceship.position.x >= -1 && spaceship.position.y <= 0) {
-        stage = 1;
-    } else if (stage == 3 && instructions1Stage == 2) {
-        instructions1Stage++;
-    }
-});
-
-// Resizes canvas when window changes size
-window.addEventListener('resize', function() {
-    camera.aspect = window.innerWidth / this.window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
-//#endregion Detect Events
-
-
+//#region Instructions Animation
 var instructions1Stage = 0;
 let instructions1 = "Scroll to zoom\nDrag to rotate\nClick Sun to pause planets\nClick planet to expore contents";
 let instructionsMesh = new THREE.Mesh();
@@ -407,7 +386,7 @@ function instruction1(state) {
             }
         } else if (state == 3) {
             if (instructionsMesh.material[0].opacity <= 0 && instructionsMesh.material[1].opacity <= 0) {
-
+                // In case more instructions should pop-up after the first set fades
             } else {
                 instructionsMesh.material[0].opacity -= 0.001;
                 instructionsMesh.material[1].opacity -= 0.001;
@@ -416,12 +395,89 @@ function instruction1(state) {
         instructionsMesh.lookAt(camera.position.x, camera.position.y, camera.position.z);
     }
 }
+//#endregion InstructionsAnimation
+
+//======= Events =================================================================================================
+
+//#region Detect Events
+// Detects mouse click
+window.addEventListener('click', function(e) {
+    if (stage == 0 && spaceship.position.x >= -1 && spaceship.position.y <= 0) {
+        stage = 1;
+    } else if (stage == 3) {
+        let curPlanet;
+        if (curPlanet = planetHover()) {
+            if (curPlanet.name == "sun") orbitBool = !orbitBool; // Pauses planet orbits
+            console.log("Clicked on: " + curPlanet.name);
+        } else if (instructions1Stage == 2) {
+            instructions1Stage++;
+        }
+    } 
+});
+
+// Detects mouse move
+window.addEventListener('mousemove', function(e) {
+    mousePos.x = (e.clientX / this.innerWidth) * 2 - 1;
+    mousePos.y = ((e.clientY / this.innerHeight) * 2 - 1) * -1;
+});
+
+// Resizes canvas when window changes size
+window.addEventListener('resize', function() {
+    camera.aspect = window.innerWidth / this.window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+//#endregion Detect Events
+
+//#region Find Where Mouse is Hovering
+sun.name = "sun";
+mercury.name = "mercury";
+venus.name = "venus";
+earth.name = "earth";
+mars.name = "mars";
+jupiter.name = "jupiter";
+saturn.name = "saturn";
+uranus.name = "uranus";
+neptune.name = "neptune";
+
+function distanceFromCam(obj) {
+    let objDistance = 0;
+    let objLocation = new Vector3();
+    objLocation.copy(obj.position);
+    objDistance = (objLocation.sub(camera.position)).length();
+    return objDistance;
+}
+
+function planetHover() {
+    let hoveredPlanets = [];
+    raycaster.setFromCamera(mousePos, camera);
+    const intersections = raycaster.intersectObjects(scene.children);
+    if (intersections.length > 0) {
+        for (let i = 0; i < intersections.length; i++) {
+            for (let j = 0; j < planets.length; j++) {
+                if (intersections[i].object.name == planets[j].name) hoveredPlanets.push(planets[j]);
+            }
+        }
+    }
+    let closestPlanet = hoveredPlanets[0];
+    if (hoveredPlanets.length > 1) {
+        for (let i = 1; i < hoveredPlanets.length; i++) {
+            if (distanceFromCam(hoveredPlanets[i]) < distanceFromCam(closestPlanet)) closestPlanet = hoveredPlanets[i];
+        }
+    }
+    return closestPlanet;
+}
+//#endregion Find Where Mouse is Hovering
+
+//======= Workspace ==============================================================================================
 
 
+
+
+
+//======= Animation Loop ==========================================================================================
 
 var skipIntro = false;
-
-
 
 // Runs constant animation of scene in browser
 var skipIntroHelper = true;
@@ -431,7 +487,7 @@ function constRender() {
     if (mixer) mixer.update(delta);
   
     if (!skipIntro) {
-        runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
+        if (orbitBool) runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
         if (spaceship) runSpaceShip(stage);
         if (stage == 2) initialZoom();
         if (stage == 3) {
@@ -440,12 +496,21 @@ function constRender() {
         }
     } else {
         if (skipIntroHelper) {
+            scene.remove(spaceshipLight);
             camera.position.setZ(40);
             instructions1Stage = 1;
             skipIntroHelper = false;
         }
+
+        //------- Testing -------//
+
+        
+        
+
+        //-----------------------//
+
         controls.enabled = true;
-        runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
+        if (orbitBool) runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
         instruction1(instructions1Stage);
         stage = 3;
     }
