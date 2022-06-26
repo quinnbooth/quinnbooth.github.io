@@ -20,7 +20,6 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 //
 // Fire behind ship
 // Add background?
-// Orbit controls?
 // Import three.js from node_modules? (not sure if this is good practice)
 //  - Maybe download my own js files for this and put in src folder using wget()
 //  - Could also use webpack? It might build modules into the bundle. Look into this?
@@ -53,7 +52,6 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enabled = false;
 const mousePos = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
-
 
 //======= Animations =============================================================================================
 
@@ -274,6 +272,12 @@ function idleSpaceShip(state) {
         if (spaceshipIdleCount == 100845) spaceshipIdleCount = 0;
         spaceship.rotation.x = -0.05 * Math.sin(spaceshipIdleCount / 300) + Math.PI / 10;
         spaceshipIdleCount++;
+    } else {
+        if (spaceshipIdleCount == 100845) spaceshipIdleCount = 0;
+        spaceship.rotation.x = 0.5 * Math.sin(spaceshipIdleCount / 300) + 3 * Math.PI / 2;
+        // y controls what direction the ship looks like it's facing
+        spaceship.rotation.z = -0.25 * Math.sin(spaceshipIdleCount / 200) + Math.PI;
+        spaceshipIdleCount++;
     }
 }
 
@@ -407,8 +411,13 @@ window.addEventListener('click', function(e) {
     } else if (stage == 3) {
         let curPlanet;
         if (curPlanet = planetHover()) {
-            if (curPlanet.name == "sun") orbitBool = !orbitBool; // Pauses planet orbits
-            console.log("Clicked on: " + curPlanet.name);
+            if (curPlanet.name == "sun") {
+                orbitBool = !orbitBool; // Pauses planet orbits
+            } else {
+                shipVelMag = 0.1;
+                destPlanet = curPlanet;
+            }
+            //console.log("Clicked on: " + curPlanet.name);
         } else if (instructions1Stage == 2) {
             instructions1Stage++;
         }
@@ -442,7 +451,7 @@ neptune.name = "neptune";
 
 function distanceFromCam(obj) {
     let objDistance = 0;
-    let objLocation = new Vector3();
+    let objLocation = new THREE.Vector3();
     objLocation.copy(obj.position);
     objDistance = (objLocation.sub(camera.position)).length();
     return objDistance;
@@ -471,16 +480,43 @@ function planetHover() {
 
 //======= Workspace ==============================================================================================
 
-
-
-
+let destPlanet;
+let shipToCursorState = 0;
+let shipVel = new THREE.Vector3(0, 0, 0);
+let shipVelMag = 0.1;
+let shipAccMag = 0.0005;
+let shipAcc = new THREE.Vector3(0.0001, 0, 0);
+function shipToCursor(dest, state) {
+    if (state == 0) {
+        shipVel = new THREE.Vector3(-0.1, 0, 0);
+        shipToCursorState++;
+    } else if (state == 1) {
+        if (spaceship.position.x > 25) {
+            spaceship.position.add(shipVel);
+        } else {
+            shipToCursorState++;
+        }
+        shipVel.add(shipAcc);
+    } else if (dest) {
+        // Calculate path to planet and fly in that direction
+        let planetPos = new THREE.Vector3()
+        planetPos.copy(dest.position);
+        planetPos.sub(spaceship.position);
+        planetPos.normalize();
+        planetPos.multiplyScalar(-shipVelMag);
+        shipVelMag += shipAccMag;
+        spaceship.position.sub(planetPos);
+        spaceship.position.z = 3;
+    }
+}
 
 //======= Animation Loop ==========================================================================================
 
-var skipIntro = false;
+var skipIntro = true;
 
 // Runs constant animation of scene in browser
 var skipIntroHelper = true;
+var a = 0;
 function constRender() {
     requestAnimationFrame(constRender); // tells browser animation is to be performed
     var delta = clock.getDelta();
@@ -504,9 +540,17 @@ function constRender() {
 
         //------- Testing -------//
 
-        
-        
 
+        a++;
+        if (a == 5) {
+            spaceship.position.set(75, -15, 3);
+            spaceship.rotation.y = 0;
+        } else if (a > 5) {
+            idleSpaceShip(1);
+            shipToCursor(destPlanet, shipToCursorState);
+        }
+        
+        
         //-----------------------//
 
         controls.enabled = true;
