@@ -1,6 +1,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
+//import { Vector3 } from 'three';
 
 //======= Ideas & Notes ===========================================================================================
 
@@ -316,28 +317,67 @@ function runSpaceShip(state) {
         stars.rotation.z += 0.000075;
     }
 }
-//#endregion Space Ship Animation
 
-//#region Fire Animation
-/*const fireIntricacy = 10;
-const fireShape = new THREE.BufferGeometry();
-var fireShapeVertices = new Float32Array(3 * fireIntricacy);
-let fireTexture = new THREE.TextureLoader().load('/images/fire2.png');
-let fireMaterial = new THREE.PointsMaterial({color: 0xAAAAAA, size: 0.1, map: fireTexture, transparent: true});
-var fire = new THREE.Points(fireShape, fireMaterial);
-//var fire = new THREE.Points(fireShape, fireMaterial);
-scene.add(fire);
-
-function randomFire() {
-    for (let i = 0; i < 3 * fireIntricacy; i++) fireShapeVertices[i] = (Math.random() * 2 - 1) * 0.25;
-    fireShape.setAttribute('position', new THREE.BufferAttribute(fireShapeVertices, 3));
-    fire.geometry.attributes.position.needsUpdate = true;
+let destPlanet;
+let shipToCursorState = 0;
+let shipVel = new THREE.Vector3(0, 0, 0);
+let shipVelMag = 0.1;
+let shipAccMag = 0.0005;
+let shipAcc = new THREE.Vector3(0.0001, 0, 0);
+function shipToCursor(dest, state) {
+    if (state == 0) {
+        shipVel = new THREE.Vector3(-0.1, 0, 0);
+        shipToCursorState++;
+    } else if (state == 1) {
+        if (spaceship.position.x > 25) {
+            spaceship.position.add(shipVel);
+        } else {
+            shipToCursorState++;
+        }
+        shipVel.add(shipAcc);
+    } else if (dest) {
+        console.log(shipVelMag);
+        if (state == 2) {
+            // Turn towards new clicked planet
+            let distVect = new THREE.Vector3().copy(dest.position).sub(spaceship.position).normalize();
+            distVect.z = 0;
+            let flipFactor = 1;
+            if (spaceship.position.x < dest.position.x) { flipFactor = -1; }
+            let compareVector = new THREE.Vector3(0, flipFactor, 0);
+            let addAngle = flipFactor * Math.PI / 2;
+            let facingAngle = Math.acos(distVect.dot(compareVector) / (distVect.length() * compareVector.length()));
+            spaceship.rotation.y = facingAngle + addAngle;
+            spaceship.rotation.z = 0;
+            spaceship.rotation.x = Math.PI/2;
+            // Calculate path to first chosen planet and fly in that direction
+            let planetPos = new THREE.Vector3()
+            planetPos.copy(dest.position);
+            planetPos.sub(spaceship.position);
+            planetPos.normalize();
+            planetPos.multiplyScalar(-shipVelMag);
+            shipVelMag += shipAccMag;
+            planetPos.z = 0;
+            spaceship.position.sub(planetPos);
+            // Once the ship is in place go to the next stage
+            planetPos.copy(dest.position);
+            if (planetPos.sub(spaceship.position).lengthSq() < 15) {
+                shipVelMag += 10 * shipAccMag;
+                shipToCursorState = 3;
+            }
+        } else if (state == 3) {
+            // Pursue the last clicked planet
+            let planetPos = new THREE.Vector3()
+            planetPos.copy(dest.position);
+            planetPos.sub(spaceship.position);
+            planetPos.normalize();
+            planetPos.multiplyScalar(-shipVelMag);
+            planetPos.z = 0;
+            spaceship.position.sub(planetPos);
+        }
+    }
 }
-randomFire();*/
 
-//const fireCone = new THREE.ConeGeometry();
-
-//#endregion Fire Animation
+//#endregion Space Ship Animation
 
 //#region Typing Text Animation
 let mixer;
@@ -414,6 +454,11 @@ window.addEventListener('click', function(e) {
             if (curPlanet.name == "sun") {
                 orbitBool = !orbitBool; // Pauses planet orbits
             } else {
+                if (shipToCursorState == 1) {
+                    shipToCursorState++;
+                } else if (shipToCursorState == 3) {
+                    shipToCursorState--;
+                }
                 shipVelMag = 0.1;
                 destPlanet = curPlanet;
             }
@@ -480,39 +525,11 @@ function planetHover() {
 
 //======= Workspace ==============================================================================================
 
-let destPlanet;
-let shipToCursorState = 0;
-let shipVel = new THREE.Vector3(0, 0, 0);
-let shipVelMag = 0.1;
-let shipAccMag = 0.0005;
-let shipAcc = new THREE.Vector3(0.0001, 0, 0);
-function shipToCursor(dest, state) {
-    if (state == 0) {
-        shipVel = new THREE.Vector3(-0.1, 0, 0);
-        shipToCursorState++;
-    } else if (state == 1) {
-        if (spaceship.position.x > 25) {
-            spaceship.position.add(shipVel);
-        } else {
-            shipToCursorState++;
-        }
-        shipVel.add(shipAcc);
-    } else if (dest) {
-        // Calculate path to planet and fly in that direction
-        let planetPos = new THREE.Vector3()
-        planetPos.copy(dest.position);
-        planetPos.sub(spaceship.position);
-        planetPos.normalize();
-        planetPos.multiplyScalar(-shipVelMag);
-        shipVelMag += shipAccMag;
-        spaceship.position.sub(planetPos);
-        spaceship.position.z = 3;
-    }
-}
+
 
 //======= Animation Loop ==========================================================================================
 
-var skipIntro = true;
+var skipIntro = false;
 
 // Runs constant animation of scene in browser
 var skipIntroHelper = true;
@@ -527,8 +544,14 @@ function constRender() {
         if (spaceship) runSpaceShip(stage);
         if (stage == 2) initialZoom();
         if (stage == 3) {
+            if (controls.enabled == false) {
+                spaceship.position.set(75, -15, 3);
+                spaceship.rotation.x = Math.PI/2;
+                spaceship.rotation.y = Math.PI;
+            }
             controls.enabled = true;
             instruction1(instructions1Stage);
+            shipToCursor(destPlanet, shipToCursorState);
         }
     } else {
         if (skipIntroHelper) {
@@ -541,13 +564,24 @@ function constRender() {
         //------- Testing -------//
 
 
-        a++;
+        if (a < 100) a++;
         if (a == 5) {
             spaceship.position.set(75, -15, 3);
-            spaceship.rotation.y = 0;
+            spaceship.rotation.x = Math.PI/2;
+            spaceship.rotation.y = Math.PI;
         } else if (a > 5) {
-            idleSpaceShip(1);
+
             shipToCursor(destPlanet, shipToCursorState);
+
+
+
+
+
+
+
+
+
+        
         }
         
         
