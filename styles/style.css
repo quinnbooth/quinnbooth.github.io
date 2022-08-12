@@ -1,0 +1,6 @@
+canvas {
+    position: fixed;
+    /* js code only seems to work when top is 0 so this is temporary */
+    top: 5%;
+    left: 0;
+}

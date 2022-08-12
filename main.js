@@ -1,6 +1,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
+import { Texture } from 'three';
 //import { Vector3 } from 'three';
 
 //======= Ideas & Notes ===========================================================================================
@@ -529,7 +530,7 @@ function planetHover() {
 
 //======= Animation Loop ==========================================================================================
 
-var skipIntro = false;
+var skipIntro = true;
 
 // Runs constant animation of scene in browser
 var skipIntroHelper = true;
@@ -560,10 +561,6 @@ function constRender() {
             instructions1Stage = 1;
             skipIntroHelper = false;
         }
-
-        //------- Testing -------//
-
-
         if (a < 100) a++;
         if (a == 5) {
             spaceship.position.set(75, -15, 3);
@@ -571,6 +568,9 @@ function constRender() {
             spaceship.rotation.y = Math.PI;
         } else if (a > 5) {
 
+        //------- Testing -------//
+
+            //window.location.href = 'contacts.html';
             shipToCursor(destPlanet, shipToCursorState);
 
 
@@ -582,11 +582,9 @@ function constRender() {
 
 
         
-        }
-        
         
         //-----------------------//
-
+        }
         controls.enabled = true;
         if (orbitBool) runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
         instruction1(instructions1Stage);
