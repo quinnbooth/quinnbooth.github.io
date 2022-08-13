@@ -28,11 +28,6 @@ body, html {
     color: #666;
 }
 
-.block2 {
-    background-color: #282e34;
-    color: #ddd;
-}
-
 .outline1 {
     background-color: #111;
     color: #fff;
@@ -94,69 +89,170 @@ body, html {
     min-height: 400px;
 }
 
-@media only screen and (min-width: 537px) {
-    /* For desktop */
-    .img1 {
-        background-image: url('../images/astronaut1.png');
-        min-height: 100%;
-    }
-            
+
+.img1 {
+    background-image: url('../images/astronaut1.png');
+    min-height: 100%;
+}
+
+
+.formblock {
+    background-color: #111;
+    color: #fff;
+    padding: 20px;
+    margin-left: 5%;
+    margin-top: 5%;
+    font-size: 16px;
+    letter-spacing: 4px;
+}
+
+.infoblock {
+    background-color: #111;
+    color: #fff;
+    padding: 20px;
+    font-size: 16px;
+    letter-spacing: 4px;
+}
+
+/* TALL AND WIDE */
+@media only screen and (min-width: 651px) {  
     .formblock {
-        background-color: #111;
-        color: #fff;
-        padding: 20px;
-        margin-left: 5%;
-        margin-top: 5%;
-        font-size: 16px;
-        letter-spacing: 4px;
         width: 35%;
         height: 70%;
         float: left;
     }
-
     .infoblock {
-        background-color: #111;
-        color: #fff;
-        padding: 20px;
-        margin-right: 5%;
         margin-top: 5%;
-        font-size: 16px;
-        letter-spacing: 4px;
+        margin-right: 5%;
         width: 35%;
         height: 70%;
         float: right;
     }
 }
 
-@media only screen and (max-width: 536px) {
-    /* For mobile phones: */
+/* TALL AND NARROW */
+@media only screen and (max-width: 650px) {
     .img1 {
-        background-image: url('../images/astronaut1.png');
-        min-height: 150%;
-        /*min-height: 1350px;*/
+        min-height: 100%;
+    }
+    .formblock {
+        width: 80%;
+        height: 60%;
+    }
+    .infoblock {
+        margin-top: 10%;
+        margin-left: 5%;
+        font-size: 16px;
+        width: 80%;
+        height: 60%;
+    }
+}
+
+/* SHORT AND WIDE */
+@media only screen and (max-height: 1200px) and (min-width: 651px){
+    .img1 {
+        min-height: 1200px;
+    }
+    .formblock {
+        height: 405px;
+    }
+    .infoblock {
+        height: 405px;
+    }
+}
+
+/* SHORT AND NARROW */
+@media only screen and (max-height: 1200px) and (max-width: 650px){
+    .img1 {
+        min-height: 1200px;
+    }
+    .formblock {
+        height: 345px;
+    }
+    .infoblock {
+        height: 345px;
+    }
+}
+
+/* Sizing for Socials */
+
+/* For narrow screen */
+.twitterblock { 
+    margin-left: 10%; 
+    width: 80%; 
+    height: 350px; 
+    text-align: right;
+}
+
+.linkedinblock {
+    margin-top: 10%;
+    margin-left: 10%; 
+    width: 80%; 
+    height: 300px; 
+    text-align: left;
+}
+
+.block2 {
+    padding: 50px 80px;
+    background-color: #282e34;
+    color: #ddd;
+    height: 80%;
+}
+
+/* For wide screen */
+
+@media only screen and (min-width: 1430px) {
+    .block2 {
+        height: 35%;
+    }
+    .twitternest {
+        width: 500px; 
+        margin-right: 0%; 
+        margin-left: auto;
+      }
+    .twitterblock {
+        float: left;
+        width: 40%;
+    }
+    .linkedinblock {
+        margin-right: 10%; 
+        margin-left: auto;
+        width: 40%;
+        margin-top: 0%;
+        float: right;
+    }
+}
+
+/* For very thin screen */
+
+@media only screen and (max-width: 473px) {
+    .block2 {
+        padding: 50px 20px;
+        background-color: #282e34;
+        color: #ddd;
+        height: 80%;
+    }
+    .linkedinblock {
+        margin-top: auto;
+        margin-bottom: auto;
+        margin-left: auto;
+        margin-right: auto;
+        margin: auto;
+        width: 255px; 
     }
 
-    .formblock {
-        background-color: #111;
-        color: #fff;
-        padding: 20px;
-        margin-left: 5%;
-        margin-top: 5%;
-        font-size: 16px;
-        letter-spacing: 4px;
-        width: 80%;
-        height: 40%;
+}
+
+/* For wide short screen */
+
+@media only screen and (max-height: 1030px) and (min-width: 1430px) {
+    .block2 {
+        height: 360px;
     }
-    
-    .infoblock {
-        background-color: #111;
-        color: #fff;
-        padding: 20px;
-        margin-left: 5%;
-        margin-top: 10%;
-        font-size: 16px;
-        letter-spacing: 4px;
-        width: 80%;
-        height: 40%;
+}
+
+@media only screen and (max-height: 1030px) and (max-width: 1429px) {
+    .block2 {
+        height: 820px;
     }
-  }
+}

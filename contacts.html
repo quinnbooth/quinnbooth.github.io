@@ -10,7 +10,9 @@
     <title>Quinn's Contacts & Socials</title>
   </head>  
   <body>
-
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v14.0" nonce="a2BulJaO"></script>
+    <script src="https://platform.linkedin.com/badges/js/profile.js" async defer type="text/javascript"></script>
     <!-- Contact Me (Form and Basic Info) -->
     <div class="img1">
       <div class="overlay">
@@ -24,18 +26,20 @@
           <span>
             Send me an email
           </span>
-          <form action="">
-            <div class="form-input">
-              <input type="text" id="name" name="name" placeholder="Name or Organization">
-            </div>
-            <div class="form-input">
-              <input type="email" id="email" name="email" placeholder="Email">
-            </div>
-            <div class="form-input">
-              <textarea id="msg" name="msg" cols="30" rows="10" placeholder="Message"></textarea>
-            </div>
-            <button type="submit">Send</button>
-          </form>
+          <div style="position: relative; top: 10%;">
+            <form action="" style="">
+              <div class="form-input">
+                <input type="text" id="name" name="name" placeholder="Name or Organization">
+              </div>
+              <div class="form-input">
+                <input type="email" id="email" name="email" placeholder="Email">
+              </div>
+              <div class="form-input">
+                <textarea id="msg" name="msg" cols="30" rows="10" placeholder="Message"></textarea>
+              </div>
+              <button type="submit">Send</button>
+            </form>
+          </div>
         </div>
         <div class="infoblock">
           <span>
@@ -70,8 +74,20 @@
     </div>
 
     <!-- Socials Content -->
-    <section class="block block2">
+    <section class="block2">
       <p></p>
+      <div class="twitterblock">
+        <div class="twitternest">
+          <a class="twitter-timeline" SameSite="lax" href="https://twitter.com/QuinnBooth10?ref_src=twsrc%5Etfw">Tweets by QuinnBooth10</a> <script async SameSite="lax" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        </div>
+      </div>
+      <div class="linkedinblock">
+        <div class="linkedinnest">
+          <div class="badge-base LI-profile-badge" data-locale="en_US" data-size="medium" data-theme="light" data-type="VERTICAL" data-vanity="quinn-booth" data-version="v1"><a class="badge-base__link LI-simple-link" href="https://www.linkedin.com/in/quinn-booth?trk=profile-badge"></a></div>
+        </div>
+        <img src="./images/instagramicon.png" alt="Instagram" width="50px">
+        <img src="./images/facebookicon.png" alt="Facebook" width="50px">
+      </div>
     </section>
 
     <!-- Leave -->
