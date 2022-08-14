@@ -11,6 +11,13 @@
   </head>  
   <body>
     <script src="https://platform.linkedin.com/badges/js/profile.js" async defer type="text/javascript"></script>
+    
+    <!-- For JS -->
+    <div style="width: 70%; height: 0%; position: fixed; z-index: 100; background-color: transparent; text-align: right;">
+      <canvas id="backg" style="width: 100%; right: 10px; top: 0px; position: fixed; background-color: transparent;"></canvas>
+      <script type="module" src="/back.js"></script>
+    </div>
+
     <!-- Contact Me (Form and Basic Info) -->
     <div class="img1">
       <div class="overlay">
@@ -25,7 +32,7 @@
             Send me an email
           </span>
           <div style="position: relative; top: 10%;">
-            <form action="" style="">
+            <form action="https://formsubmit.co/qabooth@gmail.com" method="POST">
               <div class="form-input">
                 <input type="text" id="name" name="name" placeholder="Name or Organization">
               </div>
@@ -43,7 +50,7 @@
           <span>
             Or use these
           </span>
-          <p style="font-size: 10px;">
+          <p style="font-size: 10px; color: #fff; text-transform: uppercase; letter-spacing: 4px;">
             <br><br>
             Email: <br>qabooth@gmail.com<br>
             Phone: <br>512-299-8738<br>

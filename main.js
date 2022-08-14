@@ -55,6 +55,8 @@ controls.enabled = false;
 const mousePos = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 
+
+
 //======= Animations =============================================================================================
 
 //#region Solar System Animation
@@ -530,7 +532,7 @@ function planetHover() {
 
 //======= Animation Loop ==========================================================================================
 
-var skipIntro = true;
+var skipIntro = false;
 
 // Runs constant animation of scene in browser
 var skipIntroHelper = true;
