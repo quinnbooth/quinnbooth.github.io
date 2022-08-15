@@ -38,8 +38,15 @@ body, html {
 }
 
 .img4 {
-    background-image: url('../images/threejsstarbkgd.PNG');
+    background-image: url('../images/myguitar.jpg');
     min-height: 400px;
+}
+
+
+.img5 {
+    background-size: contain;
+    background-image: url('../images/guitartimeline.png');
+    min-height: 80%;
 }
 
 .overlay {
@@ -96,6 +103,11 @@ body, html {
 
 .block2 {
     background-color: #e0f3ff;
+    color: #111;
+}
+
+.block3 {
+    background-color: #ffffff;
     color: #111;
 }
 
