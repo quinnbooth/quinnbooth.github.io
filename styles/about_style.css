@@ -1,0 +1,104 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    font-size: 16px;
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    line-height: 1.8em;
+    color: #666;
+}
+
+.img1, .img2, .img3, .img4 {
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    position: relative;
+    /*opacity: 0.90;*/
+}
+
+.img1 {
+    opacity: 90%;
+    background-color: #91d5ff;
+    background-size: contain;
+    background-image: url('../images/selfpic2.jpg');
+    min-height: 100%;
+}
+
+.img2 {
+    background-attachment: scroll;
+    background-size: contain;
+    background-image: url('../images/resume_summer2022.png');
+    min-height: 100%;
+}
+
+.img3 {
+    background-image: url('../images/threejsstarbkgd.PNG');
+    min-height: 400px;
+}
+
+.img4 {
+    background-image: url('../images/threejsstarbkgd.PNG');
+    min-height: 400px;
+}
+
+.overlay {
+    background-color: transparent;
+    position: absolute;
+    top: 15%;
+    width: 100%;
+    height: 50%;
+    color: #000;
+    font-size: 25px;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.overlay2 {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    color: #000;
+    font-size: 25px;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.outline1 {
+    background-color: #111;
+    color: #fff;
+    padding: 20px;
+}
+
+.outline2 {
+    background-color: #611;
+    color: #fff;
+    padding: 20px;
+}
+
+.outline3 {
+    background-color: transparent;
+    color: #fff;
+    padding: 20px;
+}
+
+.block {
+    text-align: center;
+    padding: 50px 80px;
+}
+
+.block1 {
+    background-color: #f4f4f4;
+    color: #666;
+}
+
+.block2 {
+    background-color: #e0f3ff;
+    color: #111;
+}
+
+
+
+
