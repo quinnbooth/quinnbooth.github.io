@@ -44,6 +44,10 @@ body, html {
 
 
 .img5 {
+    background-attachment: scroll;
+    background-position: center;
+    background-repeat: repeat-x;
+    position: relative;
     background-size: contain;
     background-image: url('../images/guitartimeline.png');
     min-height: 80%;

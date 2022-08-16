@@ -1,6 +1,6 @@
 canvas {
     position: fixed;
-    /* js code only seems to work when top is 0 so this is temporary */
-    top: 3%;
+    /* js code only seems to work when top is 0 so this is temporary (set to 3% for dropdown) */
+    top: 0;
     left: 0;
 }

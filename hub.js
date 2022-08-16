@@ -1,32 +1,9 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
-//import { Texture } from 'three';
-//import { Vector3 } from 'three';
 
-//======= Ideas & Notes ===========================================================================================
-
-// For testing/troubleshooting
-// npm run dev: hosts local site
-// https://jsfiddle.net/
-
-// In order to get the site working on github, do the following in sequence:
-// npm run build: readies website for commit
-// Commit and Push to GitHub
-// npm run deploy: links http://quinnbooth.github.io to index.html file in dist directory (will take a few minutes after it says it's complete in terminal to load online)
-// More information: https://sbcode.net/threejs/github-pages/
-
-// Use facetype.js to convert fonts in .ttf to .json
-
-// Ideas:
-//
-// Fire behind ship
-// Add background?
-// Import three.js from node_modules? (not sure if this is good practice)
-//  - Maybe download my own js files for this and put in src folder using wget()
-//  - Could also use webpack? It might build modules into the bundle. Look into this?
-
-//======= Setup ===================================================================================================
+const passedParameters = new URLSearchParams(window.location.search);
+const currentPlanet = passedParameters.get('planet');
 
 let stage = 0;
 let orbitBool = 1;
@@ -41,8 +18,6 @@ renderer.render(scene, camera);
 camera.position.setZ(40);
 let visibleHeight = 2 * Math.tan((camera.fov * Math.PI / 180 /*vertical fov*/) / 2) * camera.position.z;
 let visibleWidth = visibleHeight * camera.aspect;
-camera.position.setZ(500);
-let clock = new THREE.Clock();
 const sunLight = new THREE.PointLight(0xFFFFFF);
 const ambLight = new THREE.AmbientLight(0xFFFFFF);
 ambLight.intensity = 0.5;
@@ -60,6 +35,16 @@ const raycaster = new THREE.Raycaster();
 //======= Animations =============================================================================================
 
 //#region Solar System Animation
+
+const starsShape = new THREE.BufferGeometry();
+var starsShapeVertices = new Float32Array(9000);
+for (let i = 0; i < 9000; i++) starsShapeVertices[i] = Math.random() * 600 - 300;
+starsShape.setAttribute('position', new THREE.BufferAttribute(starsShapeVertices, 3));
+let starTexture = new THREE.TextureLoader().load('/images/star1.png');
+let starMaterial = new THREE.PointsMaterial({color: 0xAAAAAA, size: 0.75, map: starTexture, transparent: true});
+const stars = new THREE.Points(starsShape, starMaterial);
+scene.add(stars);
+
 //#region Meshes
 
 const sunShape = new THREE.SphereGeometry(3, 100, 10, 1000);
@@ -216,44 +201,6 @@ function runSolarSystem(state, rad0, planetRot, ringRot, planetSpeed, region) {
 //#endregion Function
 //#endregion Solar System Animation
 
-//#region Initial Zoom Animation
-const starsShape = new THREE.BufferGeometry();
-var starsShapeVertices = new Float32Array(9000);
-for (let i = 0; i < 9000; i++) starsShapeVertices[i] = Math.random() * 600 - 300;
-starsShape.setAttribute('position', new THREE.BufferAttribute(starsShapeVertices, 3));
-let starTexture = new THREE.TextureLoader().load('/images/star1.png');
-let starMaterial = new THREE.PointsMaterial({color: 0xAAAAAA, size: 0.75, map: starTexture, transparent: true});
-const stars = new THREE.Points(starsShape, starMaterial);
-scene.add(stars);
-
-var removeTextBool = true;
-var camVelZ = 0;
-var starRotSpd = 0;
-function initialZoom() {
-    if (camera.position.z > 250) {
-        camera.position.z += camVelZ;
-        camVelZ -= 0.001;
-        if (starRotSpd < 0.0012) starRotSpd += 0.000003;
-        stars.rotation.z += starRotSpd;
-    } else if (camera.position.z > 45) {
-        camera.position.z += camVelZ;
-        camVelZ += 0.001225;
-        if (starRotSpd > 0.000075) starRotSpd -= 0.000003;
-        stars.rotation.z += starRotSpd;
-    } else {
-        stars.rotation.z += 0.000075;
-        if (removeTextBool) {
-            scene.remove(typingtext);
-            removeTextBool = false;
-            instructions1Stage = 1;
-            stage++;
-        }
-    }
-    if (camera.rotation.x < .25) camera.rotation.x += 0.00020;
-    if (camera.position.y > -15) camera.position.y -= (6 / 500);
-}
-//#endregion Initial Zoon Animation
-
 //#region Space Ship Animation
 const spaceshipLight = new THREE.PointLight(0xFFFFFF);
 spaceshipLight.intensity = 2;
@@ -267,57 +214,6 @@ gltfLoader.load('/models/gltf/spaceship1.glb', (gltf) => {
     spaceship = gltf.scene;
     scene.add(spaceship);
 });
-
-var spaceshipIdleCount = 0;
-function idleSpaceShip(state) {
-    if (state == 0) {
-        if (spaceshipIdleCount == 100845) spaceshipIdleCount = 0;
-        spaceship.rotation.x = -0.05 * Math.sin(spaceshipIdleCount / 300) + Math.PI / 10;
-        spaceshipIdleCount++;
-    } else {
-        if (spaceshipIdleCount == 100845) spaceshipIdleCount = 0;
-        spaceship.rotation.x = 0.5 * Math.sin(spaceshipIdleCount / 300) + 3 * Math.PI / 2;
-        // y controls what direction the ship looks like it's facing
-        spaceship.rotation.z = -0.25 * Math.sin(spaceshipIdleCount / 200) + Math.PI;
-        spaceshipIdleCount++;
-    }
-}
-
-var spaceshipVelX = 0.01;
-var spaceshipVelY = -0.00085;
-const spaceshipAccX = -0.0000143;
-const spaceshipAccY = 0.0000012;
-function runSpaceShip(state) {
-    if (state == 0) {
-        if (spaceship.position.x < -1) {
-            spaceship.position.x += spaceshipVelX;
-            spaceshipVelX += spaceshipAccX;
-        }
-        if (spaceship.position.y > 0) {
-            spaceship.position.y += spaceshipVelY;
-            spaceshipVelY += spaceshipAccY;
-        }
-        if (spaceship.position.x >= -1 && spaceship.position.y <= 0 && textAnimation) textAnimation.play();
-        idleSpaceShip(0);
-        stars.rotation.z += 0.000075;
-    } else if (state == 1) {
-        if (spaceship.position.x < 6) {
-            spaceship.position.x += spaceshipVelX;
-            spaceshipVelX -= 2 * spaceshipAccX;
-        }
-        if (spaceship.position.y > -0.5) {
-            spaceship.position.y += spaceshipVelY;
-            spaceshipVelY -= 2 * spaceshipAccY;
-        }
-        idleSpaceShip(0);
-        if (spaceshipLight.intensity > 0) spaceshipLight.intensity = spaceshipLight.intensity - 0.004;
-        if (spaceship.position.x >= 6 && spaceship.position.y <= -0.5) {
-            stage++;
-            scene.remove(spaceshipLight);
-        }
-        stars.rotation.z += 0.000075;
-    }
-}
 
 let destPlanet;
 let shipToCursorState = 0;
@@ -337,7 +233,10 @@ function shipToCursor(dest, state) {
         }
         shipVel.add(shipAcc);
     } else if (dest) {
+        //console.log("state: " + state + " dest: ");
+        //console.log(startingPlanet);
         if (state == 2) {
+            console.log("hi");
             // Turn towards new clicked planet
             let distVect = new THREE.Vector3().copy(dest.position).sub(spaceship.position).normalize();
             distVect.z = 0;
@@ -362,28 +261,34 @@ function shipToCursor(dest, state) {
             planetPos.copy(dest.position);
             if (planetPos.sub(spaceship.position).lengthSq() < 15) {
                 shipVelMag += 10 * shipAccMag;
-                shipToCursorState = 3;
-                //planetTimer = 0;
+                // Go to respective link
+                if (dest == mercury && currentPlanet != "mercury") {
+                    window.location.href = './about.html';
+                } else if (dest == venus && currentPlanet != "venus") {
+                    window.location.href = './academics.html';
+                } else if (dest == earth && currentPlanet != "earth") {
+                    window.location.href = './work.html';
+                } else if (dest == mars && currentPlanet != "mars") {
+                    window.location.href = './research.html';
+                } else if (dest == jupiter && currentPlanet != "jupiter") {
+                    window.location.href = './projects.html';
+                } else if (dest == saturn && currentPlanet != "saturn") {
+                    window.location.href = './goals.html';
+                } else if (dest == uranus && currentPlanet != "uranus") {
+                    window.location.href = './recommendations.html';
+                } else if (dest == neptune && currentPlanet != "neptune") {
+                    window.location.href = './contacts.html';
+                }
+                // Pursue the last clicked planet
+                let planetPos = new THREE.Vector3()
+                planetPos.copy(dest.position);
+                planetPos.sub(spaceship.position);
+                planetPos.normalize();
+                planetPos.multiplyScalar(-shipVelMag);
+                planetPos.z = 0;
+                spaceship.position.sub(planetPos);
             }
         } else if (state == 3) {
-            // Go to respective link
-            if (dest == mercury) {
-                window.location.href = './about.html';
-            } else if (dest == venus) {
-                window.location.href = './academics.html';
-            } else if (dest == earth) {
-                window.location.href = './work.html';
-            } else if (dest == mars) {
-                window.location.href = './research.html';
-            } else if (dest == jupiter) {
-                window.location.href = './projects.html';
-            } else if (dest == saturn) {
-                window.location.href = './goals.html';
-            } else if (dest == uranus) {
-                window.location.href = './recommendations.html';
-            } else if (dest == neptune) {
-                window.location.href = './contacts.html';
-            }
             // Pursue the last clicked planet
             let planetPos = new THREE.Vector3()
             planetPos.copy(dest.position);
@@ -398,28 +303,8 @@ function shipToCursor(dest, state) {
 
 //#endregion Space Ship Animation
 
-//#region Typing Text Animation
-let mixer;
-let typingtext;
-let textAnimation;
-gltfLoader.load('/models/gltf/typingtext1.glb', (gltf) => {
-    typingtext = gltf.scene;
-    typingtext.scale.set(0.25, 0.01, 0.25);
-    typingtext.position.set(0, 0.65, 499);
-    typingtext.rotation.set(90, 0, 0);
-    scene.add(typingtext);
-    mixer = new THREE.AnimationMixer(typingtext);
-    gltf.animations.forEach((clip) => {
-        textAnimation = mixer.clipAction(clip);
-        textAnimation.setLoop(THREE.LoopOnce);
-        textAnimation.clampWhenFinished = true;
-        textAnimation.enable = true;
-    });
-});
-//#endregion Typing Text Animation
-
 //#region Instructions Animation
-var instructions1Stage = 0;
+var instructions1Stage = 1;
 let instructions1 = "Scroll to zoom\nDrag to rotate\nClick Sun to pause planets\nClick planet to expore contents";
 let instructionsMesh = new THREE.Mesh();
 fontLoader.load('/models/fonts/Cairo_Bold.json', (font) => {
@@ -548,66 +433,67 @@ function planetHover() {
 
 //======= Animation Loop ==========================================================================================
 
-var skipIntro = false;
-
 // Runs constant animation of scene in browser
-var skipIntroHelper = true;
+let startingPlanet;
+let skipIntroHelper = true;
 var a = 0;
 function constRender() {
     requestAnimationFrame(constRender); // tells browser animation is to be performed
-    var delta = clock.getDelta();
-    if (mixer) mixer.update(delta);
-  
-    if (!skipIntro) {
-        if (orbitBool) runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
-        if (spaceship) runSpaceShip(stage);
-        if (stage == 2) initialZoom();
-        if (stage == 3) {
-            if (controls.enabled == false) {
-                spaceship.position.set(75, -15, 3);
-                spaceship.rotation.x = Math.PI/2;
-                spaceship.rotation.y = Math.PI;
-            }
-            controls.enabled = true;
-            instruction1(instructions1Stage);
-            shipToCursor(destPlanet, shipToCursorState);
+    if (skipIntroHelper) {
+        scene.remove(spaceshipLight);
+        camera.position.setZ(40);
+        skipIntroHelper = false;
+        instructions1Stage = 1;
+    }
+    if (a < 100) a++;
+    if (a == 5) {
+        spaceship.position.set(75, -15, 3);
+        spaceship.rotation.x = Math.PI/2;
+        spaceship.rotation.y = Math.PI;
+        shipToCursorState = 3;
+    } else if (a == 20) {
+        if (currentPlanet == "mercury") {
+            shipVelMag = planetSpeeds[0] * 1000;
+            destPlanet = mercury;
+            spaceship.position.copy(mercury.position);
+        } else if (currentPlanet == "venus") {
+            shipVelMag = planetSpeeds[1] * 1000;
+            destPlanet = venus;
+            spaceship.position.copy(venus.position);
+        } else if (currentPlanet == "earth") {
+            shipVelMag = planetSpeeds[2] * 1000;
+            destPlanet = earth;
+            spaceship.position.copy(earth.position);
+        } else if (currentPlanet == "mars") {
+            shipVelMag = planetSpeeds[3] * 1000;
+            destPlanet = mars;
+            spaceship.position.copy(mars.position);
+        } else if (currentPlanet == "jupiter") {
+            shipVelMag = planetSpeeds[4] * 1000;
+            destPlanet = jupiter;
+            spaceship.position.copy(jupiter.position);
+        } else if (currentPlanet == "saturn") {
+            shipVelMag = planetSpeeds[5] * 1000;
+            destPlanet = saturn;
+            spaceship.position.copy(saturn.position);
+        } else if (currentPlanet == "uranus") {
+            shipVelMag = planetSpeeds[6] * 1000;
+            destPlanet = uranus;
+            spaceship.position.copy(uranus.position);
+        } else {
+            shipVelMag = planetSpeeds[7] * 1000;
+            destPlanet = neptune;
+            spaceship.position.copy(neptune.position);
         }
-    } else {
-        if (skipIntroHelper) {
-            scene.remove(spaceshipLight);
-            camera.position.setZ(40);
-            instructions1Stage = 1;
-            skipIntroHelper = false;
-        }
-        if (a < 100) a++;
-        if (a == 5) {
-            spaceship.position.set(75, -15, 3);
-            spaceship.rotation.x = Math.PI/2;
-            spaceship.rotation.y = Math.PI;
-        } else if (a > 5) {
-
-        //------- Testing -------//
-
-            shipToCursor(destPlanet, shipToCursorState);
-
-
-
-
-
-
-
-
-
-        
-        
-        //-----------------------//
-        }
+        startingPlanet = destPlanet;
+        spaceship.position.z = 3
+    }else if (a > 5) {
+        stage = 3;
+        shipToCursor(destPlanet, shipToCursorState);
         controls.enabled = true;
         if (orbitBool) runSolarSystem(solarSystem, 5, [0.002, 0.001, 0.003], ringRots, planetSpeeds, regions);
         instruction1(instructions1Stage);
-        stage = 3;
     }
-
     controls.update();
     renderer.render(scene, camera);
 }
