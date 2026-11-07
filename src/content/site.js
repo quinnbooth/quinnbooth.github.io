@@ -14,7 +14,7 @@ export const site = {
     eyebrow: 'Flight log of',
     title: 'Quinn Booth',
     blurb:
-      'Engineer, guitarist, chronic builder of things. Every planet out there is a piece of my life. Hop in, I’ll drive.',
+      'Engineer in San Francisco. Every planet out there is a piece of my life. Hop in, I’ll drive.',
     cta: 'Take off',
   },
 };
