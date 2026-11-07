@@ -3,7 +3,7 @@ const base = import.meta.env.BASE_URL;
 export const site = {
   name: 'Quinn Booth',
   email: 'qabooth@gmail.com',
-  location: 'New York City',
+  location: 'San Francisco',
   // Kept fresh by the deploy workflow; see README "Résumé auto-update".
   resume: `${base}resume/quinn-booth-resume.pdf`,
   links: {

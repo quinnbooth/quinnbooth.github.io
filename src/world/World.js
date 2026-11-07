@@ -14,6 +14,9 @@ import { clamp, damp, lerp, prefersReducedMotion } from '../lib/math.js';
 
 const SHIP_URL = `${import.meta.env.BASE_URL}models/spaceship.glb`;
 const ORIGIN = new THREE.Vector3();
+// From the overview the ship is a speck at true size, so it's drawn bigger
+// there and shrinks back down when it heads for a planet.
+const OVERVIEW_SHIP_SCALE = 3.4;
 const tmp = new THREE.Vector3();
 const tmp2 = new THREE.Vector3();
 
@@ -63,7 +66,7 @@ export class World extends EventTarget {
     for (const p of this.planets) this.scene.add(p.group, p.orbitLine);
     this.systemRadius = Math.max(...this.planets.map((p) => p.orbitRadius + p.size));
 
-    this.ship = new Ship();
+    this.ship = new Ship(this.camera);
     this.scene.add(this.ship.group);
 
     this.composer = new EffectComposer(renderer);
@@ -128,16 +131,26 @@ export class World extends EventTarget {
     const { right, up, fwd } = this.#cameraBasis();
     const cam = this.camera.position;
     const narrow = this.camera.aspect < 1;
+    // Below and to the right of the system, nose pointed in toward it. Phones
+    // keep it up top, since the title and button fill the bottom there.
     const anchor = cam
       .clone()
       .addScaledVector(fwd, 9)
-      .addScaledVector(right, narrow ? 0.6 : 2.3)
-      .addScaledVector(up, narrow ? 1.7 : -0.7);
-    const start = cam.clone().addScaledVector(fwd, 14).addScaledVector(right, -16).addScaledVector(up, -8);
-    const look = anchor.clone().addScaledVector(right, -1).addScaledVector(fwd, 1.1).addScaledVector(up, 0.15);
+      .addScaledVector(right, narrow ? 0.9 : 2.1)
+      .addScaledVector(up, narrow ? 1.9 : -1.2);
+    // Heading: in toward the system and a little down into it.
+    const dir = new THREE.Vector3()
+      .addScaledVector(right, -1)
+      .addScaledVector(up, narrow ? -0.75 : 0.42)
+      .addScaledVector(fwd, 0.95)
+      .normalize();
+    // Fly in along that same heading in a straight line, so the ship arrives
+    // already pointed the right way instead of turning once it stops.
+    const start = anchor.clone().addScaledVector(dir, -12);
+    const look = anchor.clone().add(dir);
 
     this.ship.hoverAt(start, anchor);
-    return this.ship.flyTo(() => anchor, { duration: this.#dur(3.2), arc: 0.08, lookAtOnArrive: look });
+    return this.ship.flyTo(() => anchor, { duration: this.#dur(3.2), arc: 0, lookAtOnArrive: look });
   }
 
   /** "Take off": dive from the opening shot down to the system overview. */
@@ -149,10 +162,17 @@ export class World extends EventTarget {
     rig.speed.orbit = 0.9;
     rig.setGoal({ r, theta, phi: 0.92 });
 
-    const dock = new THREE.Vector3(Math.sin(theta), 0, Math.cos(theta))
-      .multiplyScalar(this.systemRadius + 3)
-      .add(tmp.set(0, 1.2, 0));
-    await this.ship.flyTo(() => dock, { duration: this.#dur(4.2), arc: 0.25, lookAtOnArrive: ORIGIN });
+    // The ship dives with us, loops out and back once, and settles just outside
+    // the outer ring where you can still see it.
+    const dock = this.#dockPoint(theta);
+    await this.ship.flyTo(() => dock, {
+      duration: this.#dur(4.4),
+      arc: 0.1,
+      space: 'camera',
+      swirl: { radius: 16, turns: 1 },
+      scale: OVERVIEW_SHIP_SCALE,
+      lookAtOnArrive: ORIGIN,
+    });
 
     rig.speed.orbit = 3;
     this.#toOverview();
@@ -165,11 +185,17 @@ export class World extends EventTarget {
     rig.goalTarget.set(0, 0, 0);
     rig.setGoal({ r: this.overviewRadius(), theta: 0.9, phi: 0.92 });
     rig.snap();
-    const dock = new THREE.Vector3(Math.sin(0.9), 0, Math.cos(0.9))
-      .multiplyScalar(this.systemRadius + 3)
-      .add(tmp.set(0, 1.2, 0));
+    const dock = this.#dockPoint(0.9);
     this.ship.hoverAt(dock, ORIGIN);
+    this.ship.scaleGoal = OVERVIEW_SHIP_SCALE;
+    this.ship.group.scale.setScalar(OVERVIEW_SHIP_SCALE);
     this.#toOverview();
+  }
+
+  /** Just outside the outer ring, toward the camera and off to the right. */
+  #dockPoint(theta) {
+    const a = theta + 1.05;
+    return new THREE.Vector3(Math.sin(a), 0, Math.cos(a)).multiplyScalar(this.systemRadius + 5).add(tmp.set(0, 1.5, 0));
   }
 
   /**
@@ -193,10 +219,14 @@ export class World extends EventTarget {
     const focusR = this.#focusRadius(body);
 
     // Park beside the planet on the camera's side so the ship stays in view.
+    // It circles counterclockwise (seen from above): that's the direction that
+    // keeps the side of the hull where the name reads correctly facing us.
     const park = {
       body,
-      // Angle of the camera's direction from the planet, nudged toward screen-right.
-      angle: Math.atan2(Math.cos(theta), Math.sin(theta)) - 0.55,
+      speed: -0.1,
+      // Start a little left of the camera's line of sight, so the first thing it
+      // does after landing is cruise across the front of the planet.
+      angle: Math.atan2(Math.cos(theta), Math.sin(theta)) + 0.55,
       radius: body.size * (body === this.sun ? 1.6 : 1.5) + 0.5,
     };
     const end = new THREE.Vector3();
@@ -210,6 +240,7 @@ export class World extends EventTarget {
     rig.limits.rMin = body.size * 1.8;
 
     await this.ship.flyTo(getEnd, {
+      scale: 1,
       duration: this.#dur(clamp(1.3 + dist * 0.024, 1.5, 3.4)),
       arc: 0.18,
       park,
@@ -284,10 +315,11 @@ export class World extends EventTarget {
     for (const body of this.bodies) {
       this.screenInfo(body, s);
       if (!s.visible) continue;
+      // Score by distance relative to the hit radius, so a small planet right
+      // in front of the sun still wins when you click squarely on it.
       const hitR = Math.max(s.r * 1.15, 16);
-      if (Math.hypot(s.x - x, s.y - y) < hitR && (!best || s.dist < best.dist)) {
-        best = { body, dist: s.dist };
-      }
+      const score = Math.hypot(s.x - x, s.y - y) / hitR;
+      if (score < 1 && (!best || score < best.score)) best = { body, score };
     }
     return best?.body ?? null;
   }
@@ -320,7 +352,6 @@ export class World extends EventTarget {
     // Orbit lines fade out up close, where they'd slice across the planet.
     this.orbitAlpha = damp(this.orbitAlpha ?? 1, this.mode === 'focused' || this.mode === 'flying' ? 0.15 : 1, 3, dt);
     for (const p of this.planets) p.update(dt, this.orbitTime, this.time, spinDt, this.orbitAlpha);
-    this.ship.update(dt, this.time);
 
     if (this.mode === 'flying' && this.flightCam) {
       const e = this.ship.progress;
@@ -328,6 +359,9 @@ export class World extends EventTarget {
       this.rig.setGoal({ r: lerp(r0, r1, e) + Math.sin(Math.PI * e) * bump });
     }
     this.rig.update(dt);
+    // Camera-space flights need this frame's camera, so the ship moves after it.
+    this.camera.updateMatrixWorld();
+    this.ship.update(dt, this.time);
 
     this.composer.render();
     this.onFrame?.(dt);

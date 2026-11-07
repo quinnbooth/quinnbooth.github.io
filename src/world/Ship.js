@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { glowSprite } from './glow.js';
-import { clamp, damp, easeInOutCubic, quadBezier } from '../lib/math.js';
+import { clamp, damp, easeInOutCubic, lerp, quadBezier } from '../lib/math.js';
 
 const UP = new THREE.Vector3(0, 1, 0);
 const tmp = new THREE.Vector3();
@@ -17,7 +17,9 @@ const lookHelper = new THREE.Object3D();
  * guaranteed, on schedule, at any frame rate.
  */
 export class Ship {
-  constructor() {
+  constructor(camera) {
+    this.camera = camera;
+    this.scaleGoal = 1;
     this.group = new THREE.Group();
     this.group.visible = false;
     this.bank = new THREE.Group();
@@ -31,6 +33,7 @@ export class Ship {
     this.velocity = new THREE.Vector3();
     this.thrust = 0.3;
     this.roll = 0;
+    this.bob = 0; // idle bob strength, eased in so arriving doesn't jolt
 
     this.flame = glowSprite(new THREE.Color('#ffb070'), 0.9, 1);
     this.flameCore = glowSprite(new THREE.Color('#fff2dc'), 0.35, 1);
@@ -88,14 +91,25 @@ export class Ship {
    * @param opts.duration seconds
    * @param opts.arc  how much the path bows out (fraction of distance)
    * @param opts.park { body, angle, radius } to orbit on arrival; omit to hover
+   * @param opts.space 'camera' makes the curve ride along with the camera, so a
+   *   ship near the lens stays in shot while the camera moves, then peels away
+   * @param opts.swirl { radius, turns } loop out and back around the end point
+   * @param opts.scale size to grow/shrink to over the flight
    * @returns Promise that resolves on arrival (or rejects if superseded)
    */
-  flyTo(getEnd, { duration, arc = 0.22, park = null, lookAtOnArrive = null } = {}) {
+  flyTo(
+    getEnd,
+    { duration, arc = 0.22, park = null, lookAtOnArrive = null, space = 'world', swirl = null, scale = 1 } = {},
+  ) {
     this.flight?.reject?.(new Error('superseded'));
     this.group.visible = true;
+    this.scaleGoal = scale;
 
-    const start = this.group.position.clone();
-    const end0 = getEnd().clone();
+    const inCam = space === 'camera';
+    if (inCam) this.camera.updateMatrixWorld();
+    const toSpace = (v) => (inCam ? this.camera.worldToLocal(v) : v);
+    const start = toSpace(this.group.position.clone());
+    const end0 = toSpace(getEnd().clone());
     const dist = start.distanceTo(end0);
     const dir = tmp.copy(end0).sub(start).normalize();
     const side = tmp2.crossVectors(dir, UP).normalize();
@@ -108,6 +122,7 @@ export class Ship {
 
     return new Promise((resolve, reject) => {
       this.state = 'flying';
+      this.bob = 0;
       this.flight = {
         start,
         ctrl,
@@ -115,6 +130,10 @@ export class Ship {
         t: 0,
         duration: Math.max(0.3, duration),
         park,
+        inCam,
+        scale0: this.group.scale.x,
+        // The loop starts out heading away from the system's center.
+        swirl: swirl && { ...swirl, a0: Math.atan2(-getEnd().z, getEnd().x) },
         lookAtOnArrive,
         resolve,
         reject,
@@ -135,7 +154,18 @@ export class Ship {
     if (this.state === 'flying') {
       const f = this.flight;
       f.t = Math.min(1, f.t + dt / f.duration);
-      quadBezier(pos, f.start, f.ctrl, f.getEnd(), easeInOutCubic(f.t));
+      const e = easeInOutCubic(f.t);
+      const end = f.inCam ? this.camera.worldToLocal(tmp.copy(f.getEnd())) : f.getEnd();
+      quadBezier(pos, f.start, f.ctrl, end, e);
+      if (f.inCam) this.camera.localToWorld(pos);
+      if (f.swirl) {
+        // Swings out in a loop (flat, around the end point) and tightens back in.
+        const { radius, turns, a0 } = f.swirl;
+        const w = Math.sin(Math.PI * e) * e * 1.6;
+        const a = a0 + e * turns * Math.PI * 2;
+        pos.x += Math.cos(a) * radius * w;
+        pos.z -= Math.sin(a) * radius * w;
+      }
       if (f.t >= 1) this.#arrive();
     } else if (this.state === 'parked') {
       const p = this.park;
@@ -143,7 +173,8 @@ export class Ship {
       pos.copy(p.body.position).add(this.#parkOffset(p, tmp));
     } else if (this.state === 'idle') {
       pos.copy(this.anchor);
-      pos.y += Math.sin(time * 1.3) * 0.06;
+      this.bob = damp(this.bob, 1, 0.8, dt);
+      pos.y += Math.sin(time * 1.3) * 0.06 * this.bob;
     }
 
     // Derive velocity from actual movement (frame-rate independent).
@@ -165,6 +196,11 @@ export class Ship {
     const turn = this.state === 'flying' ? clamp(this.velocity.x * 0.01, -0.5, 0.5) : 0;
     this.roll = damp(this.roll, turn, 3, dt);
     this.bank.rotation.z = this.roll + Math.sin(time * 0.9) * 0.06;
+
+    // Size changes ride along with the flight, so the ship doesn't balloon while
+    // it's still right in front of the lens.
+    const s = this.state === 'flying' ? lerp(this.flight.scale0, this.scaleGoal, this.progress) : this.scaleGoal;
+    this.group.scale.setScalar(s);
 
     // Engine glow follows speed.
     const goal = clamp(0.35 + speed / 18, 0.35, 1.6);

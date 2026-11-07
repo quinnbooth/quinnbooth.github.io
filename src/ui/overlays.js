@@ -25,16 +25,39 @@ export class Labels {
   }
 
   update(world, { hovered, focused }) {
+    const placed = [];
     for (const item of this.items) {
       const body = world.byId?.[item.def.id];
+      item.on = false;
       if (!body) continue;
       const s = world.screenInfo(body, item.s);
-      const on = s.visible && item.def.id !== focused;
-      item.el.classList.toggle('is-hidden', !on);
+      item.on = s.visible && item.def.id !== focused;
+      if (item.on) {
+        item.x = s.x;
+        item.y = s.y + Math.max(s.r, 3) + 10;
+        item.w ||= item.el.offsetWidth;
+        item.h ||= item.el.offsetHeight;
+        placed.push(item);
+      }
+    }
+
+    // Planets bunch up near the sun, so when two labels would overlap, the
+    // hovered one wins, then whichever planet is closer to the camera.
+    placed.sort((a, b) => (b.def.id === hovered) - (a.def.id === hovered) || a.s.dist - b.s.dist);
+    const shown = [];
+    for (const item of placed) {
+      const clash = shown.some(
+        (o) => Math.abs(o.x - item.x) * 2 < o.w + item.w + 6 && Math.abs(o.y - item.y) * 2 < o.h + item.h + 4,
+      );
+      if (clash) item.on = false;
+      else shown.push(item);
+    }
+
+    for (const item of this.items) {
+      item.el.classList.toggle('is-hidden', !item.on);
       item.el.classList.toggle('is-hovered', item.def.id === hovered);
-      if (on) {
-        const y = s.y + Math.max(s.r, 3) + 10;
-        item.el.style.transform = `translate3d(${s.x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translateX(-50%)`;
+      if (item.on) {
+        item.el.style.transform = `translate3d(${item.x.toFixed(1)}px, ${item.y.toFixed(1)}px, 0) translateX(-50%)`;
       }
     }
   }

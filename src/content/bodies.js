@@ -1,5 +1,7 @@
 /**
- * Everything in the solar system, in order from the sun outward.
+ * Everything in the solar system, in order from the sun outward. The planets
+ * borrow their looks from the real ones, Mercury through Neptune, so keep them
+ * in that order if you move things around.
  *
  * Want a new planet? Add an entry. The scene, the labels, the index, the
  * hover previews, and the panel are all generated from this list.
@@ -30,7 +32,7 @@ export const bodies = [
     label: 'Quinn',
     kicker: 'The sun',
     title: 'Hi, I’m Quinn.',
-    subtitle: 'Engineer in New York. Guitarist everywhere else.',
+    subtitle: 'Engineer in San Francisco. Guitarist everywhere else.',
     teaser: 'Everything here orbits me. It’s my website, I’m allowed.',
     look: { size: 4 },
     sections: [
@@ -47,15 +49,37 @@ export const bodies = [
       {
         type: 'facts',
         items: [
-          ['Based in', 'New York City'],
+          ['Based in', 'San Francisco'],
           ['Studied', 'EE + CS, Columbia'],
           ['Speaks', 'English, Spanish'],
           ['Off the clock', 'Guitar, building stuff'],
         ],
       },
+      { type: 'links', items: 'standard' },
+    ],
+  },
+
+  // ---------------------------------------------------------------------------
+  {
+    id: 'early',
+    label: 'Early days',
+    kicker: 'Early days',
+    title: 'Before all this',
+    subtitle: 'The jobs that came first',
+    teaser: 'Wiring up escape rooms in high school, and a summer writing about science.',
+    // Mercury: small, gray, closest to the sun. Fitting for the early stuff.
+    look: {
+      surface: 'rocky',
+      size: 0.85,
+      colors: ['#9b958d', '#4c4843', '#cfc8bd'],
+      atmosphere: '#d9d2c6',
+      tilt: 0.03,
+      spin: 0.06,
+    },
+    orbit: { radius: 9, period: 50, phase: 0.9 },
+    sections: [
       {
         type: 'roles',
-        heading: 'Before all this',
         items: [
           {
             title: 'Engineering Tech',
@@ -72,7 +96,6 @@ export const bodies = [
           },
         ],
       },
-      { type: 'links', items: 'standard' },
     ],
   },
 
@@ -86,15 +109,17 @@ export const bodies = [
     title: '[Company]',
     subtitle: '[Role] · [Month Year] – present',
     teaser: '[One line: what you do here, in plain words.]',
+    // Venus: thick, pale, slow-turning clouds.
     look: {
-      surface: 'ocean',
-      size: 1.55,
-      colors: ['#1d5f8a', '#5f7d48', '#c8b07a'],
-      atmosphere: '#7fc3ff',
-      tilt: 0.41,
-      spin: 0.16,
+      surface: 'gas',
+      size: 1.45,
+      colors: ['#e6c98f', '#b0864c', '#f7ecd2'],
+      atmosphere: '#ffe0a3',
+      bands: 5,
+      tilt: 0.05,
+      spin: 0.04,
     },
-    orbit: { radius: 11, period: 70, phase: 0.6 },
+    orbit: { radius: 12.5, period: 70, phase: 0.6 },
     sections: [
       { type: 'lead', text: '[Two or three sentences: what the company does and what you own there.]' },
       {
@@ -116,14 +141,17 @@ export const bodies = [
     title: '[Company]',
     subtitle: '[Role] · [Month Year] – [Month Year]',
     teaser: '[One line: what you did here.]',
+    // Earth, moon included.
     look: {
-      surface: 'rocky',
-      size: 1.3,
-      colors: ['#c47a45', '#6e3420', '#e8be8c'],
-      atmosphere: '#ffb27a',
-      tilt: 0.1,
+      surface: 'ocean',
+      size: 1.55,
+      colors: ['#1d5f8a', '#5f7d48', '#c8b07a'],
+      atmosphere: '#7fc3ff',
+      tilt: 0.41,
+      spin: 0.16,
+      moons: [{ size: 0.34, distance: 2.3, speed: 0.35, incline: 0.09 }],
     },
-    orbit: { radius: 16, period: 105, phase: 2.7 },
+    orbit: { radius: 17, period: 105, phase: 2.7 },
     sections: [
       { type: 'lead', text: '[Two or three sentences.]' },
       { type: 'bullets', heading: 'Highlights', items: ['[Highlight]', '[Highlight]'] },
@@ -138,6 +166,7 @@ export const bodies = [
     title: 'Creative Machines Lab',
     subtitle: 'Research Intern · Columbia University · Summer 2022',
     teaser: 'Robots that grow by absorbing parts from other robots. Seriously.',
+    // Mars.
     look: {
       surface: 'rocky',
       size: 1.15,
@@ -145,7 +174,7 @@ export const bodies = [
       atmosphere: '#ff8f6b',
       tilt: 0.44,
     },
-    orbit: { radius: 21.5, period: 140, phase: 4.4 },
+    orbit: { radius: 22, period: 140, phase: 4.4 },
     sections: [
       {
         type: 'lead',
@@ -176,6 +205,7 @@ export const bodies = [
     title: 'Things I built to see if I could',
     subtitle: 'Each moon is a project. Most of them worked.',
     teaser: 'An FPGA tank game, an AI tutor for charts, an evolution sim, a drum machine, and more.',
+    // Jupiter, and its four big moons.
     look: {
       surface: 'gas',
       size: 3.1,
@@ -287,58 +317,13 @@ export const bodies = [
 
   // ---------------------------------------------------------------------------
   {
-    id: 'education',
-    label: 'Education',
-    kicker: 'Education',
-    title: 'Columbia University',
-    subtitle: 'Fu Foundation School of Engineering and Applied Science',
-    teaser: 'Two majors, one Morningside Heights apartment, a lot of breadboards.',
-    look: {
-      surface: 'ice',
-      size: 1.45,
-      // Columbia blue, more or less.
-      colors: ['#b9d9eb', '#5f8fb0', '#f4fbff'],
-      atmosphere: '#a8d8ff',
-      tilt: 0.3,
-    },
-    orbit: { radius: 38, period: 270, phase: 3.3 },
-    sections: [
-      {
-        type: 'facts',
-        // TODO(quinn): confirm the degree name and graduation year.
-        items: [
-          ['Degree', 'B.S., Electrical Engineering & Computer Science'],
-          ['Years', '2020 – 2024'],
-          ['Honors', 'Dean’s List, National Merit Scholar'],
-        ],
-      },
-      {
-        type: 'lead',
-        text: 'I couldn’t choose between circuits and code, so I took both. It made for long semesters and a much better sense of what’s actually happening under the hood.',
-      },
-      {
-        type: 'bullets',
-        heading: 'Classes that stuck',
-        items: [
-          'Embedded Systems (the FPGA tank game came out of this)',
-          'Electronic Circuits',
-          'Fundamentals of Computer Systems',
-          'Advanced Programming',
-          'Discrete Math',
-          'Masterpieces of Western Music. It counted, and I’d take it again.',
-        ],
-      },
-    ],
-  },
-
-  // ---------------------------------------------------------------------------
-  {
     id: 'music',
     label: 'Music',
     kicker: 'Music',
     title: 'Mostly guitar',
     subtitle: 'Fifteen-ish years of it, plus one homemade guitar body',
     teaser: 'Recordings of me playing, and how I built a guitar body from scratch. Rings react to the audio.',
+    // Saturn. The rings ripple when you play something.
     look: {
       surface: 'gas',
       size: 2.4,
@@ -349,7 +334,7 @@ export const bodies = [
       spin: 0.14,
       rings: { inner: 1.35, outer: 2.35, colors: ['#cdb68c', '#f1e4c8'] },
     },
-    orbit: { radius: 46.5, period: 330, phase: 5.5 },
+    orbit: { radius: 38, period: 270, phase: 5.5 },
     sections: [
       { type: 'photo', src: img('guitar.jpg'), alt: 'An acoustic guitar leaning in a sunny dorm window', shape: 'wide' },
       {
@@ -385,15 +370,62 @@ export const bodies = [
 
   // ---------------------------------------------------------------------------
   {
+    id: 'education',
+    label: 'Education',
+    kicker: 'Education',
+    title: 'Columbia University',
+    subtitle: 'Fu Foundation School of Engineering and Applied Science',
+    teaser: 'Two majors, one Morningside Heights apartment, a lot of breadboards.',
+    // Uranus, knocked on its side. Also happens to be about Columbia blue.
+    look: {
+      surface: 'ice',
+      size: 1.75,
+      colors: ['#bfe3ee', '#76aec4', '#f0fbff'],
+      atmosphere: '#a6ecf5',
+      tilt: 1.65,
+    },
+    orbit: { radius: 46.5, period: 330, phase: 3.3 },
+    sections: [
+      {
+        type: 'facts',
+        // TODO(quinn): confirm the degree name and graduation year.
+        items: [
+          ['Degree', 'B.S., Electrical Engineering & Computer Science'],
+          ['Years', '2020 – 2024'],
+          ['Honors', 'Dean’s List, National Merit Scholar'],
+        ],
+      },
+      {
+        type: 'lead',
+        text: 'I couldn’t choose between circuits and code, so I took both. It made for long semesters and a much better sense of what’s actually happening under the hood.',
+      },
+      {
+        type: 'bullets',
+        heading: 'Classes that stuck',
+        items: [
+          'Embedded Systems (the FPGA tank game came out of this)',
+          'Electronic Circuits',
+          'Fundamentals of Computer Systems',
+          'Advanced Programming',
+          'Discrete Math',
+          'Masterpieces of Western Music. It counted, and I’d take it again.',
+        ],
+      },
+    ],
+  },
+
+  // ---------------------------------------------------------------------------
+  {
     id: 'contact',
     label: 'Contact',
     kicker: 'Contact',
     title: 'Send a signal',
     subtitle: 'The blinking light out past everything else.',
     teaser: 'Hiring, building something, or just want to talk guitars? This is where you reach me.',
+    // Neptune, with a light on.
     look: {
       surface: 'ice',
-      size: 1.05,
+      size: 1.6,
       colors: ['#3f7fc4', '#173a66', '#a9d6ff'],
       atmosphere: '#7cc0ff',
       tilt: 0.2,

@@ -77,7 +77,3 @@ set to **GitHub Actions**.
 The deploy pulls the latest résumé PDF from wherever it lives, and the résumé
 repo can trigger a redeploy whenever it changes. Setup is in
 [`docs/resume-sync.md`](docs/resume-sync.md).
-
-## License
-
-MIT
