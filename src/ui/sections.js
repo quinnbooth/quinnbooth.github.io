@@ -29,6 +29,12 @@ const renderers = {
       ${s.caption ? `<figcaption>${s.caption}</figcaption>` : ''}
     </figure>`,
 
+  // A company mark, floated on a soft glow instead of boxed like a photo.
+  logo: (s) => `
+    <div class="logo"${s.glow ? ` style="--logo-glow: ${s.glow}"` : ''}>
+      <img src="${s.src}" alt="${esc(s.alt)}" decoding="async" />
+    </div>`,
+
   facts: (s) => `
     ${heading(s)}
     <dl class="facts">
@@ -50,8 +56,8 @@ const renderers = {
             <span class="role__title">${r.title}</span>
             <span class="role__when">${r.when}</span>
           </div>
-          <div class="role__org">${r.org}${r.where ? ` · ${r.where}` : ''}</div>
-          <p class="role__body">${r.body}</p>
+          ${r.org ? `<div class="role__org">${r.org}${r.where ? ` · ${r.where}` : ''}</div>` : ''}
+          ${r.body ? `<p class="role__body">${r.body}</p>` : ''}
         </li>`,
         )
         .join('')}
@@ -131,6 +137,27 @@ const renderers = {
         )
         .join('')}
     </ol>`,
+
+  // Launch footage: muted clips stacked one above the other. Each one loads
+  // and plays only while it's on screen (see hydrateSections).
+  launch: (s) => `
+    ${heading(s)}
+    <div class="launch">
+      <div class="launch__head">
+        <span class="launch__title">${s.title}</span>
+        <span class="launch__when">${s.when}</span>
+      </div>
+      ${s.clips
+        .map(
+          (c, i) => `
+        <figure class="clip${c.vertical ? ' clip--vertical' : ''}" aria-label="${esc(c.label)}">
+          <div class="clip__frame" data-clip="${i}"></div>
+          <span class="clip__tag"><span class="clip__stamp">${c.stamp}</span>${c.label}</span>
+        </figure>`,
+        )
+        .join('')}
+      ${s.note ? `<p class="launch__note">${s.note}</p>` : ''}
+    </div>`,
 
   // Click-to-load: nothing from YouTube is fetched until someone presses play.
   video: (s) => `
@@ -256,6 +283,102 @@ export function hydrateSections(root, sections, ctx) {
       if (btn) openLightbox(items, Number(btn.dataset.index), btn);
     });
   });
+
+  // Launch clips: create the (muted, controls-free) player the first time a
+  // clip scrolls into view, then pause and resume it as it leaves and returns.
+  const launches = sections.filter((s) => s.type === 'launch');
+  const frames = [];
+  root.querySelectorAll('.launch').forEach((el, li) => {
+    el.querySelectorAll('.clip__frame').forEach((frame) => frames.push([frame, launches[li].clips[frame.dataset.clip]]));
+  });
+  if (frames.length) {
+    const command = (iframe, func) =>
+      iframe.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args: [] }), '*');
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const frame = entry.target;
+          const clip = frame._clip;
+          let iframe = frame.querySelector('iframe');
+          if (entry.isIntersecting) {
+            if (!iframe) {
+              const params = new URLSearchParams({
+                autoplay: '1',
+                mute: '1',
+                controls: '0',
+                playsinline: '1',
+                rel: '0',
+                disablekb: '1',
+                iv_load_policy: '3',
+                cc_load_policy: '0',
+                enablejsapi: '1',
+                origin: location.origin,
+              });
+              // YouTube's own loop ignores start times, so clips with a window
+              // loop by hand (see onPlayerMessage); the rest use the built-in one.
+              if (clip.start) params.set('start', String(clip.start));
+              else params.set('loop', '1'), params.set('playlist', clip.youtube);
+              iframe = document.createElement('iframe');
+              iframe.src = `https://www.youtube-nocookie.com/embed/${clip.youtube}?${params}`;
+              iframe.title = clip.label;
+              iframe.allow = 'autoplay; encrypted-media';
+              iframe.tabIndex = -1;
+              // Ask the player to report its time, so windowed clips can loop.
+              iframe.addEventListener('load', () => {
+                let tries = 0;
+                const ask = setInterval(() => {
+                  if (iframe._heard || ++tries > 20 || !iframe.isConnected) return clearInterval(ask);
+                  iframe.contentWindow?.postMessage(
+                    JSON.stringify({ event: 'listening', id: clip.youtube, channel: 'widget' }),
+                    '*',
+                  );
+                }, 500);
+              });
+              frame.appendChild(iframe);
+            } else {
+              command(iframe, 'playVideo');
+            }
+          } else if (iframe) {
+            command(iframe, 'pauseVideo');
+          }
+        }
+      },
+      { root: root.closest('.panel__scroll'), threshold: 0.35 },
+    );
+    for (const [frame, clip] of frames) {
+      frame._clip = clip;
+      io.observe(frame);
+    }
+    const onPlayerMessage = (e) => {
+      if (!String(e.origin).includes('youtube')) return;
+      let data;
+      try {
+        data = JSON.parse(e.data);
+      } catch {
+        return;
+      }
+      const t = data?.info?.currentTime;
+      const ended = data?.info?.playerState === 0;
+      for (const [frame, clip] of frames) {
+        const iframe = frame.querySelector('iframe');
+        if (!clip.start || !iframe || e.source !== iframe.contentWindow) continue;
+        iframe._heard = true;
+        // One jump per loop: the player keeps reporting the old time for a
+        // moment after a seek, and a burst of seeks makes YouTube error out.
+        if (performance.now() < (iframe._seekedAt ?? 0) + 3000) continue;
+        if (ended || (typeof t === 'number' && t >= (clip.end ?? Infinity))) {
+          iframe._seekedAt = performance.now();
+          iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [clip.start, true] }), '*');
+          command(iframe, 'playVideo');
+        }
+      }
+    };
+    window.addEventListener('message', onPlayerMessage);
+    cleanups.push(() => {
+      io.disconnect();
+      window.removeEventListener('message', onPlayerMessage);
+    });
+  }
 
   root.querySelectorAll('.video__poster').forEach((btn) => {
     btn.addEventListener('click', () => {

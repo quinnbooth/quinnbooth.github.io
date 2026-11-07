@@ -18,8 +18,8 @@
  *   tidbits   optional readouts that pop off the planet while you're landed
  *   sections  panel content, rendered by ui/sections.js
  *
- * Section types: lead, text, photo, figures, facts, bullets, roles, projects,
- * papers, video, courses, tracks, gallery, links, contact. Strings may contain inline HTML.
+ * Section types: lead, text, photo, logo, figures, facts, bullets, roles, projects,
+ * papers, video, launch, courses, tracks, gallery, links, contact. Strings may contain inline HTML.
  */
 
 const base = import.meta.env.BASE_URL;
@@ -101,15 +101,13 @@ export const bodies = [
   },
 
   // ---------------------------------------------------------------------------
-  // TODO(quinn): Fill in your most recent job. Everything in [brackets] is a placeholder.
   {
-    id: 'work-1',
-    todo: true,
-    label: '[Company]',
-    kicker: 'Work · Now',
-    title: '[Company]',
-    subtitle: '[Role] · [Month Year] – present',
-    teaser: '[One line: what you do here, in plain words.]',
+    id: 'astranis',
+    label: 'Astranis',
+    kicker: 'Work · Before',
+    title: 'Astranis',
+    subtitle: 'Flight Software Engineer II · Sep 2024 – Nov 2026',
+    teaser: 'Flight software for geostationary satellites.',
     // Venus: thick, pale, slow-turning clouds.
     look: {
       surface: 'gas',
@@ -121,27 +119,70 @@ export const bodies = [
       spin: 0.04,
     },
     orbit: { radius: 12.5, period: 70, phase: 0.6 },
+    tidbits: [
+      { label: 'Orbit', value: 'Geostationary, 35,786 km up' },
+      { label: 'Secure boot', value: 'Every satellite in the fleet' },
+      { label: 'Launch', value: 'Falcon 9, December 2024' },
+    ],
     sections: [
-      { type: 'lead', text: '[Two or three sentences: what the company does and what you own there.]' },
+      {
+        type: 'lead',
+        text: 'Astranis builds MicroGEOs: small, dedicated satellites that sit in geostationary orbit and bring internet to entire regions. I spent two years on flight software, mostly on what a satellite trusts: what it boots, what software it accepts, and how outside code runs on it safely.',
+      },
       {
         type: 'bullets',
-        heading: 'What I’ve worked on',
-        items: ['[Thing you shipped and why it mattered]', '[Another one, with a number if you have one]', '[A third]'],
+        heading: 'What I worked on',
+        items: [
+          '<b>Secure boot, fleet-wide.</b> Every satellite only runs software it can cryptographically verify, from power-on up.',
+          '<b>A locked-down release pipeline,</b> so what we fly is exactly what we built and reviewed.',
+          '<b>Hosting third-party payloads.</b> Largely rewrote the system that lets partners’ software run on our satellites, safely walled off from our own, and worked with partners to get them flying on it.',
+          '<b>Telemetry and data reviews.</b> Owned our integration with the vendor platform we visualize telemetry on, as their main point of contact, and built tools that automate our data reviews.',
+          '<b>Live anomaly triage.</b> On call to help work through problems on satellites in orbit, as they happen.',
+          'Owned a major software release, start to finish.',
+          'Ported our Monte Carlo test infrastructure to a new cloud provider.',
+          'Ran the hiring process for an intern, then mentored them.',
+        ],
       },
-      { type: 'facts', items: [['Stack', '[Languages, tools]'], ['Team', '[Size / org]']] },
+      {
+        type: 'launch',
+        heading: 'Launch day',
+        title: 'Block 2: four satellites, one Falcon 9',
+        when: 'December 29, 2024 · Cape Canaveral',
+        note: 'Footage from The Launch Pad and NASASpaceflight. I worked on the satellites, not the videos.',
+        clips: [
+          {
+            label: 'Liftoff',
+            stamp: 'T+00:00',
+            youtube: 'kQHlw4UJVAM',
+            vertical: true,
+          },
+          {
+            label: 'Satellite separation',
+            stamp: 'T+00:33',
+            youtube: 'a5lxyXToh-4',
+            start: 5424, // 1:30:24, a beat before separation; then it keeps rolling
+          },
+        ],
+      },
+      {
+        type: 'roles',
+        heading: 'Roles',
+        items: [
+          { title: 'Flight Software Engineer II', when: 'Dec 2025 – Nov 2026' },
+          { title: 'Flight Software Engineer', when: 'Sep 2024 – Nov 2025' },
+        ],
+      },
     ],
   },
 
   // ---------------------------------------------------------------------------
-  // TODO(quinn): Fill in the job before that.
   {
-    id: 'work-2',
-    todo: true,
-    label: '[Company]',
-    kicker: 'Work · Before',
-    title: '[Company]',
-    subtitle: '[Role] · [Month Year] – [Month Year]',
-    teaser: '[One line: what you did here.]',
+    id: 'anchor',
+    label: 'Anchor Space',
+    kicker: 'Work · Now',
+    title: 'Anchor Space',
+    subtitle: 'Co-founder · Y Combinator W27',
+    teaser: 'My startup. We build software-defined optical ground stations: the ground end of laser links to satellites.',
     // Earth, moon included.
     look: {
       surface: 'ocean',
@@ -153,9 +194,26 @@ export const bodies = [
       moons: [{ size: 0.34, distance: 2.3, speed: 0.35, incline: 0.09 }],
     },
     orbit: { radius: 17, period: 105, phase: 2.7 },
+    tidbits: [
+      { label: 'Batch', value: 'Y Combinator W27' },
+      { label: 'Downlink', value: 'Lasers, not radio' },
+      { label: 'First light', value: 'First image sent over laser' },
+    ],
     sections: [
-      { type: 'lead', text: '[Two or three sentences.]' },
-      { type: 'bullets', heading: 'Highlights', items: ['[Highlight]', '[Highlight]'] },
+      { type: 'logo', glow: '40, 140, 255', src: img('work/anchor-mark.webp'), alt: 'Anchor Space logo: an anchor with a satellite above it' },
+      {
+        type: 'lead',
+        text: 'Satellites collect terabytes a day, and radio can’t get it all down. Lasers carry about 10x more. We build low-cost laser ground stations, doing in software what everyone else does with custom hardware.',
+      },
+      {
+        type: 'facts',
+        items: [
+          ['Role', 'Co-founder'],
+          ['Backed by', 'Y Combinator, Winter 2027'],
+          ['Status', '<span class="status"><span class="status__pulse" aria-hidden="true"></span>Building</span>'],
+        ],
+      },
+      { type: 'text', html: '<p class="sec__aside">Early days. More soon.</p>' },
     ],
   },
 

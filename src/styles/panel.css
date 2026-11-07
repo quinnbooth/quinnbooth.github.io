@@ -179,6 +179,52 @@
   text-underline-offset: 3px;
 }
 
+/* Logo */
+
+.logo {
+  display: grid;
+  place-items: center;
+  padding: 18px 0 6px;
+  background: radial-gradient(closest-side, rgba(var(--logo-glow, 255, 177, 92), 0.16), transparent 75%);
+}
+
+.logo img {
+  width: min(190px, 46%);
+}
+
+/* A small "live" status with a pulsing green dot (projects, facts). */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ok);
+}
+
+.status__pulse {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 8px rgba(166, 227, 180, 0.7);
+}
+
+.status__pulse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--ok);
+  animation: project-pulse 2.2s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status__pulse::after {
+    animation: none;
+  }
+}
+
 /* Photo */
 
 .photo {
@@ -680,6 +726,108 @@
 
 .paper:hover .paper__go svg {
   transform: translate(2px, -2px);
+}
+
+/* Launch: mission header plus clip tiles */
+
+.launch {
+  padding: 18px 18px 14px;
+  border: 1px solid var(--line-2);
+  border-radius: 3px;
+  background:
+    radial-gradient(120% 90% at 100% 100%, rgba(255, 150, 70, 0.14), transparent 55%),
+    linear-gradient(180deg, rgba(20, 24, 40, 0.9), rgba(8, 9, 14, 0.9));
+}
+
+.launch__head {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.launch__title {
+  font-family: var(--serif);
+  font-size: 23px;
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.launch__when {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.clip {
+  margin: 0 0 14px;
+}
+
+/* The player fills the frame and ignores the pointer, so it reads as footage,
+   not as a YouTube embed. Vertical clips are cropped to a square. */
+.clip__frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border-radius: 3px;
+  background: #000;
+}
+
+.clip--vertical .clip__frame {
+  aspect-ratio: 1;
+}
+
+.clip__frame iframe {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  /* Slightly oversized so YouTube's title bar and corner logo fall outside. */
+  width: 124%;
+  height: 124%;
+  border: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+/* A 9:16 clip covering a square: full width, 16/9 as tall, centered. */
+.clip--vertical .clip__frame iframe {
+  width: 100%;
+  height: 177.78%;
+}
+
+.clip {
+  position: relative;
+}
+
+/* Mission-clock tag, tucked into the footage's corner. */
+.clip__tag {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 9px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: rgba(3, 4, 9, 0.72);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.clip__stamp {
+  color: var(--accent);
+}
+
+.launch__note {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--ink-3);
 }
 
 /* Video: a poster that swaps in the YouTube player on click */
