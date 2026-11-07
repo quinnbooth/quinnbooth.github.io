@@ -6,10 +6,11 @@
   right: 0;
   bottom: 0;
   width: min(580px, 46vw);
+  /* No backdrop blur: blurring a live WebGL canvas every frame made scrolling
+     the panel stutter. A near-opaque background reads the same. */
   background: var(--panel);
   border-left: 1px solid var(--line);
-  backdrop-filter: blur(16px) saturate(1.1);
-  -webkit-backdrop-filter: blur(16px) saturate(1.1);
+  contain: layout paint;
   transform: translateX(104%);
   transition: transform 0.75s var(--ease-out);
   z-index: 30;
@@ -395,6 +396,246 @@
 .project:hover .project__go {
   color: var(--accent);
   transform: translate(2px, -2px);
+}
+
+/* Figures: photos stacked, each with its caption beside it */
+
+.figures {
+  display: grid;
+  gap: 12px;
+}
+
+.figure {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  margin: 0;
+}
+
+.figure__btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #000;
+  cursor: zoom-in;
+}
+
+.figure__btn img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  transition: transform 0.6s var(--ease-out), opacity 0.3s;
+  opacity: 0.92;
+}
+
+.figure__btn:hover img {
+  transform: scale(1.03);
+  opacity: 1;
+}
+
+.figure figcaption {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+/* Papers */
+
+.papers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.paper {
+  display: block;
+  padding: 15px 18px 14px;
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: rgba(239, 232, 220, 0.015);
+  transition:
+    border-color 0.25s,
+    background 0.25s,
+    transform 0.35s var(--ease-out);
+}
+
+.paper:hover {
+  border-color: rgba(255, 177, 92, 0.45);
+  background: var(--accent-soft);
+  transform: translateX(-3px);
+}
+
+.paper--featured {
+  border-color: rgba(255, 177, 92, 0.3);
+  background: linear-gradient(160deg, rgba(255, 177, 92, 0.09), rgba(255, 177, 92, 0.01) 60%);
+}
+
+.paper__venue {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.paper__venue span:last-child {
+  color: var(--ink-3);
+}
+
+.paper__title {
+  margin-top: 8px;
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.paper__blurb {
+  margin: 8px 0 12px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.paper__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.paper__authors b {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.paper__go {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.paper__go svg {
+  transition: transform 0.3s var(--ease-out);
+}
+
+.paper:hover .paper__go {
+  color: var(--accent);
+}
+
+.paper:hover .paper__go svg {
+  transform: translate(2px, -2px);
+}
+
+/* Video: a poster that swaps in the YouTube player on click */
+
+.video {
+  margin: 0;
+}
+
+.video__poster,
+.video__frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 3px;
+  background: #000;
+}
+
+.video__poster {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.video__poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.72;
+  transition: opacity 0.3s, transform 0.6s var(--ease-out);
+}
+
+.video__poster::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(3, 4, 9, 0.85), transparent 55%);
+}
+
+.video__poster:hover img {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.video__play {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  padding-left: 3px;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 8px rgba(255, 177, 92, 0.18);
+  transition: transform 0.3s var(--ease-out);
+}
+
+.video__play svg {
+  width: 20px;
+  height: 20px;
+}
+
+.video__poster:hover .video__play {
+  transform: scale(1.08);
+}
+
+.video__title {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 13px;
+  z-index: 1;
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.15;
+  text-align: left;
+  color: var(--ink);
+}
+
+.video figcaption {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.sec__aside {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--ink-3);
 }
 
 /* Tracks */

@@ -19,6 +19,7 @@ const ORIGIN = new THREE.Vector3();
 const OVERVIEW_SHIP_SCALE = 3.4;
 const tmp = new THREE.Vector3();
 const tmp2 = new THREE.Vector3();
+const surfaceToCam = new THREE.Vector3();
 
 const wrapAngle = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
@@ -82,6 +83,7 @@ export class World extends EventTarget {
     this.timeScale = 1;
     this.timeScaleGoal = 1;
     this.clock = new THREE.Clock();
+    this.slowFrames = 0;
     this.onFrame = null;
 
     this.resize();
@@ -308,6 +310,38 @@ export class World extends EventTarget {
     return out;
   }
 
+  /**
+   * A point on a planet's surface, given as a direction in the planet's own
+   * (spinning) frame, so it turns with the planet. Reports where it is on
+   * screen and how squarely it faces the camera (1 = dead on, < 0 = far side).
+   */
+  surfacePoint(id, dir, out = {}) {
+    const body = this.byId[id];
+    if (!body?.mesh) return null;
+    const p = tmp.copy(dir).normalize();
+    body.mesh.localToWorld(p);
+    const normal = tmp2.copy(p).sub(body.position).normalize();
+    out.facing = normal.dot(surfaceToCam.copy(this.camera.position).sub(p).normalize());
+    p.project(this.camera);
+    out.x = ((p.x + 1) / 2) * this.width;
+    out.y = ((1 - p.y) / 2) * this.height;
+    return out;
+  }
+
+  /** Where the ship is on screen (x, y in px). */
+  shipOnScreen(out = {}) {
+    const p = tmp.copy(this.ship.position).project(this.camera);
+    out.x = ((p.x + 1) / 2) * this.width;
+    out.y = ((1 - p.y) / 2) * this.height;
+    return out;
+  }
+
+  /** The part of the screen the panel isn't covering, in px. */
+  get freeArea() {
+    const { inset } = this.rig;
+    return { width: this.width - 2 * inset.x, height: this.height - 2 * inset.y };
+  }
+
   /** The body under a screen point, generous on small/far planets. */
   pick(x, y) {
     let best = null;
@@ -340,8 +374,25 @@ export class World extends EventTarget {
 
   // ---- loop -----------------------------------------------------------------
 
+  /**
+   * If frames keep coming in slow, render at a lower resolution. It only ever
+   * steps down, so it can't flicker back and forth.
+   */
+  #adaptQuality(rawDt) {
+    if (rawDt > 0.25) return; // tab was in the background, not a slow frame
+    this.slowFrames = rawDt > 1 / 40 ? this.slowFrames + 1 : Math.max(0, this.slowFrames - 2);
+    if (this.slowFrames < 90 || this.pixelRatio <= 1) return;
+    this.slowFrames = 0;
+    this.pixelRatio = Math.max(1, this.pixelRatio - 0.25);
+    this.renderer.setPixelRatio(this.pixelRatio);
+    this.sky.setPixelRatio(this.pixelRatio);
+    this.resize();
+  }
+
   #tick() {
-    const dt = Math.min(this.clock.getDelta(), 0.1);
+    const rawDt = this.clock.getDelta();
+    this.#adaptQuality(rawDt);
+    const dt = Math.min(rawDt, 0.1);
     this.time += dt;
     this.timeScale = damp(this.timeScale, this.timeScaleGoal, 2, dt);
     this.orbitTime += dt * this.timeScale;

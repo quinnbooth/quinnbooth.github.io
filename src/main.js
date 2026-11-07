@@ -6,6 +6,7 @@ import { bodies } from './content/bodies.js';
 import { site } from './content/site.js';
 import { Panel } from './ui/Panel.js';
 import { Labels, HoverCard, SystemIndex } from './ui/overlays.js';
+import { Callouts } from './ui/callouts.js';
 import { isLightboxOpen } from './ui/lightbox.js';
 import { icons } from './ui/icons.js';
 import { prefersReducedMotion } from './lib/math.js';
@@ -74,6 +75,7 @@ $('#hint').textContent = isTouch
 // ---- UI pieces ---------------------------------------------------------------
 
 const hoverCard = new HoverCard($('#hovercard'));
+const callouts = new Callouts($('#callouts'));
 
 const panel = new Panel($('#panel'), {
   onClose: () => release(),
@@ -118,6 +120,7 @@ async function go(id) {
   if (state.flyingTo === id || (state.focused === id && panel.isOpen)) return;
 
   panel.close();
+  callouts.setTarget(null);
   state.focused = null;
   state.flyingTo = id;
   setHover(null);
@@ -140,6 +143,7 @@ async function go(id) {
   state.focused = id;
   document.body.classList.remove('is-traveling');
   panel.open(bodies[indexOf[id]], indexOf[id], bodies);
+  callouts.setTarget(bodies[indexOf[id]]);
   requestAnimationFrame(updateInset);
   history.replaceState(null, '', `#/${id}`);
 }
@@ -147,6 +151,7 @@ async function go(id) {
 function release() {
   if (!panel.isOpen && !state.flyingTo) return;
   panel.close();
+  callouts.setTarget(null);
   state.focused = null;
   state.flyingTo = null;
   document.body.classList.remove('is-traveling');
@@ -214,8 +219,12 @@ window.addEventListener('hashchange', () => {
 
 window.addEventListener('resize', updateInset);
 
-world.onFrame = () => {
+// Reading the panel? Callouts wait until you stop scrolling.
+panel.el.scroll.addEventListener('scroll', () => callouts.noteReading(), { passive: true });
+
+world.onFrame = (dt = 1 / 60) => {
   labels.update(world, state);
+  callouts.update(world, dt);
   if (state.hovered) hoverCard.follow(world, world.byId[state.hovered]);
 };
 

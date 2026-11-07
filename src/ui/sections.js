@@ -80,6 +80,55 @@ const renderers = {
         .join('')}
     </ul>`,
 
+  figures: (s) => `
+    ${heading(s)}
+    <div class="figures">
+      ${s.items
+        .map(
+          (f, i) => `
+        <figure class="figure">
+          <button class="figure__btn" type="button" data-index="${i}" aria-label="Enlarge photo: ${esc(f.caption)}">
+            <img src="${f.src}" alt="${esc(f.alt ?? '')}" loading="lazy" decoding="async" />
+          </button>
+          <figcaption>${f.caption}</figcaption>
+        </figure>`,
+        )
+        .join('')}
+    </div>`,
+
+  papers: (s) => `
+    ${heading(s)}
+    <ol class="papers">
+      ${s.items
+        .map(
+          (p) => `
+        <li>
+          <a class="paper${p.featured ? ' paper--featured' : ''}" href="${p.href}" target="_blank" rel="noopener">
+            <div class="paper__venue"><span>${p.venue}</span><span>${p.year}</span></div>
+            <div class="paper__title">${p.title}</div>
+            <p class="paper__blurb">${p.blurb}</p>
+            <div class="paper__foot">
+              <span class="paper__authors">${p.authors}</span>
+              <span class="paper__go">${p.position}${icons.external}</span>
+            </div>
+          </a>
+        </li>`,
+        )
+        .join('')}
+    </ol>`,
+
+  // Click-to-load: nothing from YouTube is fetched until someone presses play.
+  video: (s) => `
+    ${heading(s)}
+    <figure class="video">
+      <button class="video__poster" type="button" data-youtube="${s.youtube}" aria-label="Play video: ${esc(s.title)}">
+        <img src="https://i.ytimg.com/vi/${s.youtube}/hqdefault.jpg" alt="" loading="lazy" decoding="async" />
+        <span class="video__play">${icons.play}</span>
+        <span class="video__title">${s.title}</span>
+      </button>
+      ${s.caption ? `<figcaption>${s.caption}</figcaption>` : ''}
+    </figure>`,
+
   tracks: (s) => `${heading(s)}${note(s)}<div class="tracks" data-mount="tracks"></div>`,
 
   gallery: (s) => `
@@ -157,6 +206,27 @@ export function hydrateSections(root, sections, ctx) {
     list.addEventListener('click', (e) => {
       const btn = e.target.closest('.gallery__item');
       if (btn) openLightbox(items, Number(btn.dataset.index), btn);
+    });
+  });
+
+  const figureSets = sections.filter((s) => s.type === 'figures');
+  root.querySelectorAll('.figures').forEach((grid, gi) => {
+    const items = figureSets[gi].items;
+    grid.addEventListener('click', (e) => {
+      const btn = e.target.closest('.figure__btn');
+      if (btn) openLightbox(items, Number(btn.dataset.index), btn);
+    });
+  });
+
+  root.querySelectorAll('.video__poster').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const frame = document.createElement('iframe');
+      frame.className = 'video__frame';
+      frame.src = `https://www.youtube-nocookie.com/embed/${btn.dataset.youtube}?autoplay=1&rel=0`;
+      frame.title = btn.getAttribute('aria-label').replace('Play video: ', '');
+      frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      btn.replaceWith(frame);
+      frame.focus();
     });
   });
 

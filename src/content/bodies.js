@@ -15,10 +15,11 @@
  *   teaser    the hover preview: what you'll find if you fly there
  *   look      how the planet is drawn (see world/Planet.js)
  *   orbit     radius (scene units) and period (seconds per lap)
+ *   tidbits   optional readouts that pop off the planet while you're landed
  *   sections  panel content, rendered by ui/sections.js
  *
- * Section types: lead, text, photo, facts, bullets, roles, projects, tracks,
- * gallery, links, contact. Strings may contain inline HTML.
+ * Section types: lead, text, photo, figures, facts, bullets, roles, projects,
+ * papers, video, tracks, gallery, links, contact. Strings may contain inline HTML.
  */
 
 const base = import.meta.env.BASE_URL;
@@ -163,9 +164,9 @@ export const bodies = [
     id: 'research',
     label: 'Research',
     kicker: 'Research',
-    title: 'Creative Machines Lab',
-    subtitle: 'Research Intern · Columbia University · Summer 2022',
-    teaser: 'Robots that grow by absorbing parts from other robots. Seriously.',
+    title: 'Robots, mostly',
+    subtitle: 'Columbia University · 2022 – 2024 · Four papers',
+    teaser: 'Robots that grow by eating other robots, a swarm that moves by vibrating, and the four papers about them.',
     // Mars.
     look: {
       surface: 'rocky',
@@ -175,25 +176,121 @@ export const bodies = [
       tilt: 0.44,
     },
     orbit: { radius: 22, period: 140, phase: 4.4 },
+    // Little readouts that pop off the planet while you're landed. Keep each
+    // one short: a label and a value, about 40 characters together, tops.
+    tidbits: [
+      { label: 'Papers', value: '4, one in Science Advances' },
+      { label: 'My role', value: 'Hardware lead' },
+      { label: 'Robot diet', value: 'Other robots' },
+      { label: 'Seen on', value: 'Bloomberg Originals' },
+      { label: 'Lab', value: 'Creative Machines, Columbia' },
+    ],
     sections: [
       {
         type: 'lead',
-        text: 'I spent a summer on the Robot Metabolism project in Hod Lipson’s lab. The idea: machines that can grow, repair themselves, and get better by taking in parts from their surroundings, including other robots.',
+        text: 'Two years in Hod Lipson’s Creative Machines Lab, building robots that don’t stay the shape you built them: truss robots that grow by taking parts from other robots, and a swarm that gets around by vibrating. Four papers came out of it, and the robots ended up on Bloomberg.',
       },
       {
-        type: 'bullets',
-        heading: 'What I did',
+        type: 'figures',
         items: [
-          'Built modular robot components, the pieces the robots join and trade.',
-          'Wrote computer vision code to track the robots during experiments.',
-          'Designed and built the large arena the live experiments ran in.',
-          'Ran, filmed, and documented the experiments.',
+          {
+            src: img('research/truss-sphere.jpg'),
+            caption: 'Truss Links, assembled into a 3D frame. Each bar is one robot.',
+            alt: 'White bar-shaped robot modules joined at their ends into a rounded polyhedron, lit red and blue',
+          },
+          {
+            src: img('research/truss-shape.jpg'),
+            caption: 'Truss Links in a looser shape.',
+            alt: 'White bar-shaped robot modules joined into an open frame, lit red and blue',
+          },
+          {
+            src: img('research/particle-robot.jpg'),
+            caption: 'The particle robot: vibrating cells in a loose chain.',
+            alt: 'Five clear cylindrical robot cells with circuit boards inside, wrapped in a black chain-link band',
+          },
         ],
       },
       {
-        type: 'text',
-        html: '<p>Robots on the red planet felt right.</p>',
+        type: 'papers',
+        heading: 'Papers',
+        items: [
+          {
+            title: 'Robot metabolism: Toward machines that can grow by consuming other machines',
+            venue: 'Science Advances',
+            year: 2025,
+            authors: 'Wyder, Bakhda, Zhao, <b>Booth</b>, … Lipson',
+            position: '4th of 20 authors',
+            blurb: 'Robots built from one simple, bar-shaped module that can grow, heal, and improve by absorbing modules from their surroundings, including other robots.',
+            href: 'https://www.science.org/doi/10.1126/sciadv.adu6897',
+            featured: true,
+          },
+          {
+            title: 'Clay for the Creative Mind: Hands-On Robot Shaping Using Truss Links',
+            venue: 'ACM Creativity & Cognition',
+            year: 2026,
+            authors: 'Wyder, Goldfeder, <b>Booth</b>, … ',
+            position: '3rd of 8 authors',
+            blurb: 'The same robot modules as a creative medium: building blocks that people without a robotics background can shape by hand.',
+            href: 'https://dl.acm.org/doi/10.1145/3803784.3816836',
+          },
+          {
+            title: 'Robot Links: Towards Self-Assembling Truss Robots',
+            venue: 'IEEE ReMAR',
+            year: 2024,
+            authors: 'Wyder, Bakhda, Zhao, <b>Booth</b>, … Lipson',
+            position: '4th of 18 authors',
+            blurb: 'Introduces the Truss Link: a robot bar with magnetic ends that can find other links and assemble into larger structures.',
+            href: 'https://ieeexplore.ieee.org/document/10619984',
+          },
+          {
+            title: 'Vibrating Particle Robot',
+            venue: 'IEEE ReMAR',
+            year: 2024,
+            authors: 'Batra, Wyder, Jhunjhunwala, <b>Booth</b>, … Lipson',
+            position: '4th of 7 authors',
+            blurb: 'A soft robot made of simple vibrating cells. None of them can steer, but together they move where a frequency gradient points them.',
+            href: 'https://ieeexplore.ieee.org/document/10619983',
+          },
+        ],
       },
+      {
+        type: 'video',
+        heading: 'On Bloomberg',
+        youtube: 'sK5_pQV_QEA',
+        title: 'What Happens When Robots Don’t Need Us Anymore?',
+        caption: 'Bloomberg Originals, <i>Posthuman with Emily Chang</i>. Our robots make an appearance.',
+      },
+      {
+        type: 'roles',
+        heading: 'Where I worked',
+        items: [
+          {
+            title: 'Hardware Lead, Robot Metabolism',
+            org: 'Creative Machines Lab',
+            when: 'May 2022 – May 2024',
+            body: 'Led the hardware for the truss robots, and worked on the computer vision and cloud control that ran them. Used them to simulate evolution with robotic building blocks, and trained the grad students who joined after me.',
+          },
+          {
+            title: 'Research Assistant, Particle Robots',
+            org: 'Creative Machines Lab',
+            when: 'Sep 2022 – May 2024',
+            body: 'Soft robotics for a loosely coupled swarm, steered with frequency gradients. Built the cloud control setup for the robot fleet and prototyped PCBs.',
+          },
+          {
+            title: 'IoT Research Assistant',
+            org: 'Internet Real-Time Lab',
+            when: 'Sep 2023 – Aug 2024',
+            body: 'Firmware for low-power LoRa radios, and a batteryless device that runs on energy from motion around it.',
+          },
+          {
+            title: 'ML Research Assistant',
+            org: 'Department of Statistics',
+            when: 'Jul – Oct 2023',
+            body: 'Machine learning for data compression, through rate-distortion-perception theory, with Dr. Marcel Nutz.',
+          },
+        ],
+      },
+      { type: 'text', html: '<p class="sec__aside">Robots on the red planet felt right.</p>' },
     ],
   },
 

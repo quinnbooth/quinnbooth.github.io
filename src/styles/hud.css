@@ -91,6 +91,17 @@ body:is([data-phase='loading'], [data-phase='intro']) .wordmark {
   gap: 4px;
 }
 
+/* On desktop the panel slides over these; hide them so they don't ghost through. */
+@media (min-width: 900px) {
+  .topbar__links {
+    transition: opacity 0.4s;
+  }
+  body:has(.panel.is-open) .topbar__links {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
 .topbar__link,
 .topbar__icon {
   display: inline-flex;
@@ -288,6 +299,107 @@ body:has(.panel.is-open) .labels {
 .label.is-hidden {
   opacity: 0;
   pointer-events: none;
+}
+
+/* Callouts: readouts that pop off the planet you've landed on ------------ */
+
+.callouts {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.callout {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.5s;
+}
+
+.callout.is-out {
+  opacity: 0;
+}
+
+.callout__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.callout__line {
+  fill: none;
+  stroke: rgba(239, 232, 220, 0.5);
+  stroke-width: 1;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: callout-draw 0.7s var(--ease-out) 0.15s forwards;
+}
+
+.callout__dot {
+  fill: var(--bg);
+  stroke: var(--accent);
+  stroke-width: 1.25;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: callout-dot 0.4s var(--ease-out) both;
+}
+
+.callout__label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 5px 8px;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: rgba(3, 4, 9, 0.55);
+  border-radius: 2px;
+  clip-path: inset(0 100% 0 0);
+  animation: callout-wipe 0.6s var(--ease-out) 0.7s forwards;
+}
+
+.callout--left .callout__label {
+  align-items: flex-end;
+  clip-path: inset(0 0 0 100%);
+}
+
+.callout__k {
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+}
+
+.callout__v {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+}
+
+@keyframes callout-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes callout-dot {
+  from { transform: scale(0); }
+}
+
+@keyframes callout-wipe {
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .callout__line,
+  .callout__dot,
+  .callout__label {
+    animation: none;
+    stroke-dashoffset: 0;
+    clip-path: none;
+  }
 }
 
 /* Hover preview ---------------------------------------------------------- */
