@@ -84,6 +84,8 @@ export class World extends EventTarget {
     this.timeScaleGoal = 1;
     this.clock = new THREE.Clock();
     this.slowFrames = 0;
+    this.frame = 0;
+    this.easeUntil = 0;
     this.onFrame = null;
 
     this.resize();
@@ -380,6 +382,7 @@ export class World extends EventTarget {
    */
   #adaptQuality(rawDt) {
     if (rawDt > 0.25) return; // tab was in the background, not a slow frame
+    if (performance.now() < this.easeUntil) return; // scrolling, not the scene's fault
     this.slowFrames = rawDt > 1 / 40 ? this.slowFrames + 1 : Math.max(0, this.slowFrames - 2);
     if (this.slowFrames < 90 || this.pixelRatio <= 1) return;
     this.slowFrames = 0;
@@ -387,6 +390,15 @@ export class World extends EventTarget {
     this.renderer.setPixelRatio(this.pixelRatio);
     this.sky.setPixelRatio(this.pixelRatio);
     this.resize();
+  }
+
+  /**
+   * Something else needs the GPU for a moment (scrolling the panel): draw the
+   * scene every third frame until it's been quiet for a beat. Everything still
+   * updates every frame, so motion stays correct; it just redraws less often.
+   */
+  easeOff() {
+    this.easeUntil = performance.now() + 220;
   }
 
   #tick() {
@@ -414,7 +426,8 @@ export class World extends EventTarget {
     this.camera.updateMatrixWorld();
     this.ship.update(dt, this.time);
 
-    this.composer.render();
+    const easing = performance.now() < this.easeUntil;
+    if (!easing || this.frame++ % 3 === 0) this.composer.render();
     this.onFrame?.(dt);
   }
 }

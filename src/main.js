@@ -232,7 +232,15 @@ window.addEventListener('hashchange', () => {
 window.addEventListener('resize', updateInset);
 
 // Reading the panel? Callouts wait until you stop scrolling.
-panel.el.scroll.addEventListener('scroll', () => callouts.noteReading(), { passive: true });
+// Scrolling the panel: let the 3D scene draw less often so the scroll stays smooth.
+panel.el.scroll.addEventListener(
+  'scroll',
+  () => {
+    callouts.noteReading();
+    world.easeOff?.();
+  },
+  { passive: true },
+);
 
 world.onFrame = (dt = 1 / 60) => {
   labels.update(world, state);

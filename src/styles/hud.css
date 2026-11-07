@@ -378,6 +378,10 @@ body:has(.panel.is-open) .labels {
   inset: 0;
   z-index: 6;
   pointer-events: none;
+  /* Own compositor layer: redrawing the lines each frame stays here instead of
+     dragging the scrolling panel into the repaint. */
+  will-change: transform;
+  contain: strict;
 }
 
 .callout {

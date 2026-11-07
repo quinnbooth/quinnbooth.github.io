@@ -61,22 +61,37 @@ const renderers = {
     ${heading(s)}
     <ul class="projects">
       ${s.items
-        .map(
-          (p) => `
+        .map((p) => {
+          // Cards without a link (works in progress) render as plain blocks.
+          const tag = p.href ? 'a' : 'div';
+          const link = p.href ? ` href="${p.href}" target="_blank" rel="noopener"` : '';
+          const cls = ['project', p.featured && 'project--featured', p.status && 'project--active', !p.href && 'project--static']
+            .filter(Boolean)
+            .join(' ');
+          return `
         <li>
-          <a class="project" href="${p.href}" target="_blank" rel="noopener">
+          <${tag} class="${cls}"${link}>
+            ${p.image ? `<div class="project__media"><img src="${p.image}" alt="${esc(p.imageAlt ?? '')}" loading="lazy" decoding="async" />${p.featured ? `<span class="project__badge">${p.featured}</span>` : ''}${
+                p.inset
+                  ? `<figure class="project__inset"><img src="${p.inset}" alt="${esc(p.insetAlt ?? '')}" loading="lazy" decoding="async" />${p.insetLabel ? `<figcaption>${p.insetLabel}</figcaption>` : ''}</figure>`
+                  : ''
+              }</div>` : ''}
             <div class="project__top">
               <span class="project__name">${p.name}</span>
-              <span class="project__year">${p.year}</span>
+              ${
+                p.status
+                  ? `<span class="project__status"><span class="project__pulse" aria-hidden="true"></span>${p.status}</span>`
+                  : `<span class="project__year">${p.year}</span>`
+              }
             </div>
             <p class="project__blurb">${p.blurb}</p>
             <div class="project__foot">
               <span class="tags">${p.tags.map((t) => `<span class="tag">${t}</span>`).join('')}</span>
-              <span class="project__go">${icons.external}</span>
+              ${p.href ? `<span class="project__go">${icons.external}</span>` : ''}
             </div>
-          </a>
-        </li>`,
-        )
+          </${tag}>
+        </li>`;
+        })
         .join('')}
     </ul>`,
 

@@ -103,7 +103,11 @@ export class Callouts {
       </svg>
       <div class="callout__label"><span class="callout__k">${tidbit.label}</span><span class="callout__v">${tidbit.value}</span></div>`;
     this.root.appendChild(el);
+    const label = el.querySelector('.callout__label');
     return {
+      // Measured once here. Reading it every frame forced a full-page layout
+      // per frame, which is what made scrolling the panel stutter.
+      labelWidth: label.offsetWidth,
       el,
       dir: localDir,
       side,
@@ -112,7 +116,7 @@ export class Callouts {
       body: {},
       path: el.querySelector('.callout__line'),
       dot: el.querySelector('.callout__dot'),
-      label: el.querySelector('.callout__label'),
+      label,
     };
   }
 
@@ -125,7 +129,7 @@ export class Callouts {
     const ey = sp.y + up * Math.min(run * 0.75, 70);
     const tail = 36;
     let lx = ex + side * tail;
-    lx = side > 0 ? Math.min(lx, free.width - EDGE - c.label.offsetWidth) : Math.max(lx, EDGE + c.label.offsetWidth);
+    lx = side > 0 ? Math.min(lx, free.width - EDGE - c.labelWidth) : Math.max(lx, EDGE + c.labelWidth);
     const ly = Math.max(EDGE + 10, Math.min(free.height - EDGE, ey));
 
     c.path.setAttribute('d', `M${sp.x.toFixed(1)} ${sp.y.toFixed(1)} L${ex.toFixed(1)} ${ly.toFixed(1)} L${lx.toFixed(1)} ${ly.toFixed(1)}`);
