@@ -85,7 +85,7 @@ const renderers = {
     <ul class="bullets">${s.items.map((i) => `<li>${i}</li>`).join('')}</ul>`,
 
   roles: (s) => `
-    ${heading(s)}
+    ${heading(s)}${note(s)}
     <ol class="roles">
       ${s.items
         .map(

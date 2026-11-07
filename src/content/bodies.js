@@ -33,19 +33,14 @@ export const bodies = [
     label: 'Quinn',
     kicker: 'The sun',
     title: 'Hi, I’m Quinn.',
-    subtitle: 'Engineer in San Francisco. Guitarist everywhere else.',
+    subtitle: 'Co-founder of Anchor Space · San Francisco',
     teaser: 'Everything here orbits me. It’s my website, I’m allowed.',
     look: { size: 4 },
     sections: [
       { type: 'photo', src: img('quinn.jpg'), alt: 'Quinn, smiling, in front of the columns of the Treasury building', shape: 'round' },
       {
         type: 'lead',
-        text: 'I studied electrical engineering and computer science at Columbia (EE major, CS minor) and never picked a favorite. My best work lives where the hardware and the software both have to cooperate, and I like it even more when they don’t and I get to find out why.',
-      },
-      {
-        type: 'text',
-        html: `<p>I taught myself JavaScript to build the first version of this site back in 2022. It had a spaceship that couldn’t catch planets. This one has been to flight school.</p>
-<p>When I’m not at a keyboard I’m usually holding a guitar, writing something that’s harder to play than it needs to be.</p>`,
+        text: 'I studied electrical engineering and computer science at Columbia and never picked a favorite. My best work happens where hardware and software have to cooperate.',
       },
       {
         type: 'pair',
@@ -63,30 +58,28 @@ export const bodies = [
         ],
       },
       {
-        type: 'facts',
-        items: [
-          ['Based in', 'San Francisco'],
-          ['Studied', 'EE + CS, Columbia'],
-          ['Speaks', 'English, Spanish'],
-          ['Off the clock', 'Guitar, tennis, board games, building stuff'],
-        ],
+        type: 'text',
+        heading: 'Getting around',
+        html: `<p>Everything orbiting out there is a piece of my life: my startup, the satellites I worked on before it, robotics research, side projects, music, school, and what I do for fun. Want to say hi? Head for the blinking light way out at the edge.</p>
+<p>Click on a planet to fly there, or use the arrow keys to hop between them. Esc brings you back out.</p>`,
       },
       {
         type: 'roles',
-        heading: 'Before all this',
+        heading: 'Odd jobs',
+        note: 'They didn’t fit anywhere else, but I still like them.',
         items: [
           {
             title: 'Engineering Tech',
             org: 'The Escape Game',
             when: '2018 – 2019',
             where: 'Nashville',
-            body: 'Part of the company’s only engineering team, in high school. Designed and built the electronics inside escape rooms, soldered circuit boards, and wrote a tool to track parts in the warehouse.',
+            body: 'In high school. Built the electronics for escape rooms.',
           },
           {
             title: 'Science Writer',
             org: 'The Taiwan Times',
             when: 'Summer 2022',
-            body: 'Wrote a dozen-plus articles on new scientific research. Turns out explaining things clearly is its own engineering problem.',
+            body: 'Wrote a dozen-plus articles explaining new research.',
           },
         ],
       },

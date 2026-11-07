@@ -367,9 +367,14 @@
   object-position: 50% 62%;
 }
 
+.photo--round {
+  display: grid;
+  justify-items: center;
+}
+
 .photo--round img {
-  width: 116px;
-  height: 116px;
+  width: 156px;
+  height: 156px;
   border-radius: 50%;
   object-fit: cover;
   box-shadow:
@@ -449,6 +454,12 @@
 .role {
   padding: 14px 0;
   border-top: 1px solid var(--line);
+}
+
+/* The section heading already draws a rule; don't stack another under it. */
+.role:first-child {
+  border-top: 0;
+  padding-top: 4px;
 }
 
 .role__top {
