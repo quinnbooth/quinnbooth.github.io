@@ -12,7 +12,7 @@ const heading = (s) => (s.heading ? `<h3 class="sec__heading">${s.heading}</h3>`
 const note = (s) => (s.note ? `<p class="sec__note">${s.note}</p>` : '');
 
 const standardLinks = () => [
-  { label: 'Résumé', href: site.resume, icon: 'doc', note: 'PDF' },
+  { label: 'Resume', href: site.resume, icon: 'doc', note: 'PDF' },
   { label: 'GitHub', href: site.links.github, icon: 'github' },
   { label: 'LinkedIn', href: site.links.linkedin, icon: 'linkedin' },
   { label: site.email, href: `mailto:${site.email}`, icon: 'mail' },
@@ -128,6 +128,30 @@ const renderers = {
       </button>
       ${s.caption ? `<figcaption>${s.caption}</figcaption>` : ''}
     </figure>`,
+
+  courses: (s) => `
+    ${heading(s)}${note(s)}
+    <div class="courses">
+      ${s.items
+        .map(
+          (g) => `
+        <div class="courses__group">
+          <div class="courses__name">${g.group}</div>
+          <ul class="courses__list">
+            ${g.courses
+              .map(
+                ([name, code, aside]) => `
+              <li class="course">
+                <span class="course__name">${name}${aside ? `<span class="course__aside">${aside}</span>` : ''}</span>
+                <span class="course__code">${code}</span>
+              </li>`,
+              )
+              .join('')}
+          </ul>
+        </div>`,
+        )
+        .join('')}
+    </div>`,
 
   tracks: (s) => `${heading(s)}${note(s)}<div class="tracks" data-mount="tracks"></div>`,
 

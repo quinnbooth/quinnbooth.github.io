@@ -19,7 +19,7 @@
  *   sections  panel content, rendered by ui/sections.js
  *
  * Section types: lead, text, photo, figures, facts, bullets, roles, projects,
- * papers, video, tracks, gallery, links, contact. Strings may contain inline HTML.
+ * papers, video, courses, tracks, gallery, links, contact. Strings may contain inline HTML.
  */
 
 const base = import.meta.env.BASE_URL;
@@ -40,7 +40,7 @@ export const bodies = [
       { type: 'photo', src: img('quinn.jpg'), alt: 'Quinn, wearing headphones and a half smile', shape: 'round' },
       {
         type: 'lead',
-        text: 'I studied electrical engineering and computer science at Columbia and never picked a favorite. My best work lives where the hardware and the software both have to cooperate, and I like it even more when they don’t and I get to find out why.',
+        text: 'I studied electrical engineering and computer science at Columbia (EE major, CS minor) and never picked a favorite. My best work lives where the hardware and the software both have to cooperate, and I like it even more when they don’t and I get to find out why.',
       },
       {
         type: 'text',
@@ -417,8 +417,8 @@ export const bodies = [
     id: 'music',
     label: 'Music',
     kicker: 'Music',
-    title: 'Mostly guitar',
-    subtitle: 'Fifteen-ish years of it, plus one homemade guitar body',
+    title: 'Fingerstyle guitar',
+    subtitle: 'Fifteen-ish years of it',
     teaser: 'Recordings of me playing, and how I built a guitar body from scratch. Rings react to the audio.',
     // Saturn. The rings ripple when you play something.
     look: {
@@ -436,29 +436,32 @@ export const bodies = [
       { type: 'photo', src: img('guitar.jpg'), alt: 'An acoustic guitar leaning in a sunny dorm window', shape: 'wide' },
       {
         type: 'lead',
-        text: 'Acoustic is home base. My favorite hobby is writing pieces that are a little too hard for me, then practicing them for months until they aren’t. Add some singing and production on top and every so often something comes out I’m proud of.',
+        text: 'I play acoustic fingerstyle, where one guitar covers the melody, the bass, and the rhythm at the same time. Here are two covers of players I’ve learned a lot from, and one piece of my own.',
+      },
+      {
+        type: 'text',
+        html: '<p>I also sing (a few years of choir and vocal lessons) and do some music production, mostly on my own recordings.</p>',
       },
       {
         type: 'tracks',
         heading: 'A few recordings',
         note: 'Hit play and watch the rings.',
-        // TODO(quinn): give these real names.
         items: [
-          { title: 'Recording No. 1', src: audio('guitar-1.mp3') },
-          { title: 'Recording No. 2', src: audio('guitar-2.mp3') },
-          { title: 'Recording No. 3', src: audio('guitar-3.mp3') },
+          { title: 'Grace', by: 'Calum Graham cover', src: audio('guitar-1.mp3') },
+          { title: 'Archetype of Night', by: 'Original', src: audio('guitar-2.mp3') },
+          { title: 'Heather’s Song', by: 'Andy McKee cover', src: audio('guitar-3.mp3') },
         ],
       },
       {
         type: 'gallery',
         heading: 'I also built a guitar body',
-        note: 'From a pile of 2×4s to a Telecaster-shaped thing you can hold.',
+        note: 'Start to finish, with tools I made along the way.',
         items: [
           { src: img('guitar-build/step-1.jpg'), caption: 'Started by building a hot-wire foam cutter.' },
-          { src: img('guitar-build/step-2.jpg'), caption: 'Gave it a proper table.' },
+          { src: img('guitar-build/step-2.jpg'), caption: 'The same foam cutter, unfolded.' },
           { src: img('guitar-build/step-3.jpg'), caption: 'Cut a Telecaster template out of foam.' },
           { src: img('guitar-build/step-4.jpg'), caption: 'Used the template to make a mold.' },
-          { src: img('guitar-build/step-5.jpg'), caption: 'Packed it in layers, light to dark.' },
+          { src: img('guitar-build/step-5.jpg'), caption: 'Filled the mold with layers of beads, light to dark.' },
           { src: img('guitar-build/step-6.jpg'), caption: 'Out of the mold.' },
         ],
       },
@@ -471,8 +474,8 @@ export const bodies = [
     label: 'Education',
     kicker: 'Education',
     title: 'Columbia University',
-    subtitle: 'Fu Foundation School of Engineering and Applied Science',
-    teaser: 'Two majors, one Morningside Heights apartment, a lot of breadboards.',
+    subtitle: 'B.S. Electrical Engineering · Computer Science minor · 2020 – 2024',
+    teaser: 'Electrical engineering, most of a CS degree on the side, a 3.94, and one class about Game of Thrones.',
     // Uranus, knocked on its side. Also happens to be about Columbia blue.
     look: {
       surface: 'ice',
@@ -482,30 +485,85 @@ export const bodies = [
       tilt: 1.65,
     },
     orbit: { radius: 46.5, period: 330, phase: 3.3 },
+    tidbits: [
+      { label: 'GPA', value: '3.94' },
+      { label: 'Credits', value: '153.5, not counting AP' },
+      { label: 'Heaviest semester', value: '21 credits, twice' },
+      { label: 'Concentration', value: 'Communications & Networking' },
+      { label: 'Wildcard', value: 'A class on Game of Thrones' },
+    ],
     sections: [
       {
+        type: 'lead',
+        text: 'I majored in electrical engineering and minored in computer science, though by the end I’d taken nearly everything the CS major asks for. I couldn’t choose between circuits and code, so I didn’t. Most semesters ran past 20 credits.',
+      },
+      {
         type: 'facts',
-        // TODO(quinn): confirm the degree name and graduation year.
         items: [
-          ['Degree', 'B.S., Electrical Engineering & Computer Science'],
-          ['Years', '2020 – 2024'],
-          ['Honors', 'Dean’s List, National Merit Scholar'],
+          ['Degree', 'B.S., Electrical Engineering'],
+          ['Concentration', 'Communications & Networking'],
+          ['Minor', 'Computer Science'],
+          ['Grades', '3.94 GPA · Dean’s List'],
+          ['Years', 'Sep 2020 – May 2024'],
+          ['Also', 'Columbia Space Initiative. Explains a lot about this website.'],
         ],
       },
       {
-        type: 'lead',
-        text: 'I couldn’t choose between circuits and code, so I took both. It made for long semesters and a much better sense of what’s actually happening under the hood.',
-      },
-      {
-        type: 'bullets',
-        heading: 'Classes that stuck',
+        type: 'courses',
+        heading: 'What I took',
+        note: 'The highlights, sorted by what they taught me.',
         items: [
-          'Embedded Systems (the FPGA tank game came out of this)',
-          'Electronic Circuits',
-          'Fundamentals of Computer Systems',
-          'Advanced Programming',
-          'Discrete Math',
-          'Masterpieces of Western Music. It counted, and I’d take it again.',
+          {
+            group: 'Hardware',
+            courses: [
+              ['Embedded Systems', 'CSEE 4840'],
+              ['Advanced Logic Design', 'CSEE 4823'],
+              ['Electronic Circuits', 'ELEN 3331'],
+              ['Solid-State Devices & Materials', 'ELEN 3106'],
+              ['Electromagnetics', 'ELEN 3401'],
+              ['Capstone Design', 'ELEN 3390'],
+            ],
+          },
+          {
+            group: 'Signals & networks',
+            courses: [
+              ['Signals & Systems', 'ELEN 3801'],
+              ['Intro to Communication Systems', 'ELEN 3701'],
+              ['Computer Networks', 'CSEE 4119'],
+              ['Network Virtualization & Cloud Computing', 'ELEN 6770', 'Graduate level'],
+              ['Solid-State, Microwave & Fiber Optics Lab', 'ELEN 3043'],
+            ],
+          },
+          {
+            group: 'Computer science',
+            courses: [
+              ['Advanced Programming', 'COMS 3157'],
+              ['Data Structures in Java', 'COMS 3134'],
+              ['Fundamentals of Computer Systems', 'CSEE 3827'],
+              ['Discrete Mathematics', 'COMS 3203'],
+              ['Computer Science Theory', 'COMS 3261'],
+              ['Intro to Databases', 'COMS 4111'],
+              ['User Interface Design', 'COMS 4170'],
+            ],
+          },
+          {
+            group: 'ML & data',
+            courses: [
+              ['Applied Machine Learning', 'COMS 4995'],
+              ['Empirical Methods of Data Science', 'COMS 4995'],
+              ['Design for Generative AI', 'COMS 6998', 'Graduate level'],
+              ['Computational Linear Algebra', 'COMS 3251'],
+              ['Probability for Engineers', 'IEOR 3658'],
+            ],
+          },
+          {
+            group: 'Wildcards',
+            courses: [
+              ['Masterpieces of Western Music', 'HUMA 1123'],
+              ['Game of Thrones', 'MDES 1030', 'Yes, really'],
+              ['Intro to Islamic Civilization', 'ASCM 2003'],
+            ],
+          },
         ],
       },
     ],
@@ -518,7 +576,7 @@ export const bodies = [
     kicker: 'Contact',
     title: 'Send a signal',
     subtitle: 'The blinking light out past everything else.',
-    teaser: 'Hiring, building something, or just want to talk guitars? This is where you reach me.',
+    teaser: 'Hiring, building something, or just want to say hi? This is where you reach me.',
     // Neptune, with a light on.
     look: {
       surface: 'ice',

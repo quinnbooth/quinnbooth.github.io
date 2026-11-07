@@ -8,6 +8,7 @@ export const icons = {
   doc: stroke('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>'),
   external: stroke('<path d="M7 17 17 7M9 7h8v8"/>', 14),
   close: stroke('<path d="M6 6l12 12M18 6 6 18"/>', 18),
+  back: stroke('<path d="M19 12H5M11 6l-6 6 6 6"/>', 15),
   prev: stroke('<path d="M15 6l-6 6 6 6"/>', 16),
   next: stroke('<path d="M9 6l6 6-6 6"/>', 16),
   play: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>`,

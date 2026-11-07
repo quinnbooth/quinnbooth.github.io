@@ -46,7 +46,7 @@ export function mountTracks(root, tracks, ctx) {
       <button class="track__play" type="button" aria-label="Play ${t.title}">${icons.play}</button>
       <div class="track__main">
         <div class="track__top">
-          <span class="track__title">${t.title}</span>
+          <span class="track__title">${t.title}${t.by ? `<span class="track__by">${t.by}</span>` : ''}</span>
           <span class="track__time">–:––</span>
         </div>
         <div class="track__bar" role="slider" tabindex="0" aria-label="Seek ${t.title}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">

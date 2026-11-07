@@ -638,6 +638,57 @@
   color: var(--ink-3);
 }
 
+/* Courses: grouped list, name on the left, course code on the right */
+
+.courses {
+  display: grid;
+  gap: 22px;
+}
+
+.courses__name {
+  margin-bottom: 4px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.courses__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.course {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 15px;
+}
+
+.course__name {
+  color: var(--ink);
+}
+
+.course__aside {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.course__code {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+
 /* Tracks */
 
 .tracks {
@@ -688,6 +739,15 @@
 
 .track__title {
   font-size: 15px;
+}
+
+.track__by {
+  margin-left: 10px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
 }
 
 .track__time {

@@ -54,7 +54,7 @@ if (import.meta.env.DEV) window.__world = world; // handy in the console
 // ---- static chrome ----------------------------------------------------------
 
 $('#topbar-links').innerHTML = `
-  <a class="topbar__link" href="${site.resume}" target="_blank" rel="noopener">${icons.doc}<span>Résumé</span></a>
+  <a class="topbar__link" href="${site.resume}" target="_blank" rel="noopener">${icons.doc}<span>Resume</span></a>
   <a class="topbar__icon" href="${site.links.github}" target="_blank" rel="noopener" aria-label="GitHub">${icons.github}</a>
   <a class="topbar__icon" href="${site.links.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn">${icons.linkedin}</a>
   <a class="topbar__icon" href="mailto:${site.email}" aria-label="Email">${icons.mail}</a>`;
@@ -127,6 +127,7 @@ async function go(id) {
   updateInset();
   systemIndex.setCurrent(id);
   document.body.classList.add('is-traveling');
+  setAway(true);
   if (!state.hasFlown) {
     state.hasFlown = true;
     document.body.classList.add('has-flown');
@@ -155,6 +156,7 @@ function release() {
   state.focused = null;
   state.flyingTo = null;
   document.body.classList.remove('is-traveling');
+  setAway(false);
   systemIndex.setCurrent(null);
   world.release();
   updateInset();
@@ -191,6 +193,16 @@ world.rig.addEventListener('tap', (e) => {
 $('#intro').addEventListener('click', (e) => {
   if (e.target.closest('.intro__cta')) takeOff();
 });
+
+// "Back to the system": shows up under the wordmark whenever you're away from the overview.
+const backBtn = $('#back');
+backBtn.innerHTML = `${icons.back}<span>Back to the system</span><kbd>Esc</kbd>`;
+backBtn.addEventListener('click', () => release());
+
+function setAway(on) {
+  document.body.classList.toggle('is-away', on);
+  backBtn.tabIndex = on ? 0 : -1;
+}
 
 $('#wordmark').addEventListener('click', (e) => {
   e.preventDefault();

@@ -80,6 +80,76 @@ body.is-pointing #scene {
   color: var(--ink-3);
 }
 
+.topbar__left {
+  position: relative;
+}
+
+/* "Back to the system": tucked under the wordmark, only while you're away. */
+.backbtn {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: -2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px 7px 9px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink-2);
+  background: rgba(3, 4, 9, 0.55);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition:
+    opacity 0.4s,
+    transform 0.5s var(--ease-out),
+    color 0.2s,
+    border-color 0.2s;
+}
+
+body.is-away .backbtn {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.backbtn:hover,
+.backbtn:focus-visible {
+  color: var(--ink);
+  border-color: rgba(255, 177, 92, 0.55);
+}
+
+.backbtn svg {
+  transition: transform 0.3s var(--ease-out);
+}
+
+.backbtn:hover svg {
+  color: var(--accent);
+  transform: translateX(-2px);
+}
+
+.backbtn kbd {
+  padding: 1px 5px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  border: 1px solid var(--line-2);
+  border-radius: 3px;
+}
+
+@media (hover: none), (max-width: 899px) {
+  .backbtn kbd {
+    display: none;
+  }
+}
+
 body:is([data-phase='loading'], [data-phase='intro']) .wordmark {
   opacity: 0;
   pointer-events: none;

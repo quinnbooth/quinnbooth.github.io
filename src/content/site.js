@@ -4,7 +4,7 @@ export const site = {
   name: 'Quinn Booth',
   email: 'qabooth@gmail.com',
   location: 'San Francisco',
-  // Kept fresh by the deploy workflow; see README "Résumé auto-update".
+  // Kept fresh by the deploy workflow; see README "Resume auto-update".
   resume: `${base}resume/quinn-booth-resume.pdf`,
   links: {
     github: 'https://github.com/quinnbooth',

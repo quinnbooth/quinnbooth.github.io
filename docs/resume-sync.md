@@ -1,12 +1,12 @@
-# Résumé auto-update
+# Resume auto-update
 
 The site always links to `/resume/quinn-booth-resume.pdf`. On every deploy, the
 workflow in `.github/workflows/deploy.yml` tries to replace that file with the
-latest version from wherever the résumé actually lives.
+latest version from wherever the resume actually lives.
 
 ## One-time setup
 
-1. **Point the site at your résumé.** In this repo, go to
+1. **Point the site at your resume.** In this repo, go to
    *Settings → Secrets and variables → Actions → Variables* and add
    `RESUME_URL`. Any URL that returns the PDF works. For a PDF committed to a
    public repo called `resume`:
@@ -26,7 +26,7 @@ latest version from wherever the résumé actually lives.
    (The workflow sends `Accept: application/octet-stream`, which makes the API
    return the raw file.)
 
-2. **Make résumé changes trigger a deploy.** Add this workflow to the résumé
+2. **Make resume changes trigger a deploy.** Add this workflow to the resume
    repo as `.github/workflows/notify-site.yml`. It needs a secret `SITE_TOKEN`:
    a fine-grained token with *Contents: read and write* on
    `quinnbooth/quinnbooth.github.io` (that's the permission the dispatch API
@@ -50,10 +50,10 @@ latest version from wherever the résumé actually lives.
                -d '{"event_type":"resume-updated"}'
    ```
 
-   If the résumé is built from LaTeX in that repo, run this step after the
+   If the resume is built from LaTeX in that repo, run this step after the
    build step that produces the PDF.
 
-Push a new résumé, and the site redeploys with it within a couple of minutes.
+Push a new resume, and the site redeploys with it within a couple of minutes.
 Even without step 2, the weekly scheduled build picks up changes.
 
 ## If something goes wrong

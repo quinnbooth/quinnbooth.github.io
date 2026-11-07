@@ -48,7 +48,7 @@ src/
     shaders/           GLSL: simplex noise and the planet surfaces
   ui/                  DOM overlays: panel, labels, hover card, index, audio, form
   styles/              base (tokens, type) · hud (overlays) · panel
-public/                Served as-is: ship model, audio, photos, résumé
+public/                Served as-is: ship model, audio, photos, resume
 art/blender/           Source .blend files for the ship
 ```
 
@@ -72,8 +72,8 @@ Pushing to `main` builds and deploys through GitHub Actions
 (`.github/workflows/deploy.yml`). In the repo settings, *Pages → Source* must be
 set to **GitHub Actions**.
 
-### Résumé auto-update
+### Resume auto-update
 
-The deploy pulls the latest résumé PDF from wherever it lives, and the résumé
+The deploy pulls the latest resume PDF from wherever it lives, and the resume
 repo can trigger a redeploy whenever it changes. Setup is in
 [`docs/resume-sync.md`](docs/resume-sync.md).

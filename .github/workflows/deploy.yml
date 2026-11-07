@@ -5,10 +5,10 @@ on:
     branches: [main]
   # "Run workflow" button in the Actions tab.
   workflow_dispatch:
-  # Fired by the résumé repo whenever the PDF changes (see docs/resume-sync.md).
+  # Fired by the resume repo whenever the PDF changes (see docs/resume-sync.md).
   repository_dispatch:
     types: [resume-updated]
-  # Safety net: rebuild weekly so the résumé can never drift for long.
+  # Safety net: rebuild weekly so the resume can never drift for long.
   schedule:
     - cron: '17 9 * * 1'
 
@@ -37,7 +37,7 @@ jobs:
       # If RESUME_URL is set (Settings > Secrets and variables > Actions > Variables),
       # pull the latest PDF from it. Otherwise, or if the download fails, the copy
       # committed at public/resume/quinn-booth-resume.pdf ships as-is.
-      - name: Fetch latest résumé
+      - name: Fetch latest resume
         if: ${{ vars.RESUME_URL != '' }}
         env:
           RESUME_URL: ${{ vars.RESUME_URL }}
@@ -48,9 +48,9 @@ jobs:
           if curl -fsSL --retry 3 "${auth[@]}" -H "Accept: application/octet-stream" "$RESUME_URL" -o /tmp/resume.pdf \
              && head -c 4 /tmp/resume.pdf | grep -q '%PDF'; then
             cp /tmp/resume.pdf public/resume/quinn-booth-resume.pdf
-            echo "Résumé updated from $RESUME_URL"
+            echo "Resume updated from $RESUME_URL"
           else
-            echo "::warning::Couldn't fetch a PDF from RESUME_URL; shipping the committed résumé."
+            echo "::warning::Couldn't fetch a PDF from RESUME_URL; shipping the committed resume."
           fi
 
       - run: npm run build
