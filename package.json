@@ -1,18 +1,21 @@
 {
   "name": "quinnbooth.github.io",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Quinn Booth's personal site: a small solar system where every planet is a part of my life.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "deploy": "gh-pages -d dist"
+    "preview": "vite preview"
   },
-  "devDependencies": {
-    "vite": "^2.9.9"
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
-    "gh-pages": "^4.0.0",
-    "three": "^0.141.0"
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.10"
   }
 }

@@ -1,0 +1,137 @@
+:root {
+  --bg: #030409;
+  --ink: #efe8dc;
+  --ink-2: #b9b2a6;
+  --ink-3: #7f7a71;
+  --line: rgba(239, 232, 220, 0.11);
+  --line-2: rgba(239, 232, 220, 0.22);
+  --accent: #ffb15c;
+  --accent-soft: rgba(255, 177, 92, 0.14);
+  --accent-ink: #1c1003;
+  --panel: rgba(8, 9, 14, 0.86);
+  --ok: #a6e3b4;
+  --warn: #ffb6a1;
+
+  --serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --gutter: clamp(16px, 3.2vw, 40px);
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.mono {
+  font-family: var(--mono);
+}
+
+/* Buttons --------------------------------------------------------------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 22px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border: 1px solid var(--line-2);
+  border-radius: 2px;
+  transition:
+    background 0.25s,
+    color 0.25s,
+    border-color 0.25s,
+    transform 0.25s var(--ease-out);
+}
+
+.button--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.button--primary:hover:not(:disabled) {
+  background: #ffc27f;
+  transform: translateY(-1px);
+}
+
+.button:disabled {
+  cursor: progress;
+}
+
+/* Fallbacks ------------------------------------------------------------- */
+
+.noscript {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  padding: var(--gutter);
+  text-align: center;
+  font-size: 17px;
+}
+
+.noscript h1 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 64px;
+  margin: 0 0 8px;
+}

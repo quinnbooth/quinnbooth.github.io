@@ -1,0 +1,72 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  # "Run workflow" button in the Actions tab.
+  workflow_dispatch:
+  # Fired by the résumé repo whenever the PDF changes (see docs/resume-sync.md).
+  repository_dispatch:
+    types: [resume-updated]
+  # Safety net: rebuild weekly so the résumé can never drift for long.
+  schedule:
+    - cron: '17 9 * * 1'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # If RESUME_URL is set (Settings > Secrets and variables > Actions > Variables),
+      # pull the latest PDF from it. Otherwise, or if the download fails, the copy
+      # committed at public/resume/quinn-booth-resume.pdf ships as-is.
+      - name: Fetch latest résumé
+        if: ${{ vars.RESUME_URL != '' }}
+        env:
+          RESUME_URL: ${{ vars.RESUME_URL }}
+          RESUME_TOKEN: ${{ secrets.RESUME_TOKEN }}
+        run: |
+          auth=()
+          if [ -n "$RESUME_TOKEN" ]; then auth=(-H "Authorization: Bearer $RESUME_TOKEN"); fi
+          if curl -fsSL --retry 3 "${auth[@]}" -H "Accept: application/octet-stream" "$RESUME_URL" -o /tmp/resume.pdf \
+             && head -c 4 /tmp/resume.pdf | grep -q '%PDF'; then
+            cp /tmp/resume.pdf public/resume/quinn-booth-resume.pdf
+            echo "Résumé updated from $RESUME_URL"
+          else
+            echo "::warning::Couldn't fetch a PDF from RESUME_URL; shipping the committed résumé."
+          fi
+
+      - run: npm run build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
