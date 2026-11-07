@@ -18,8 +18,8 @@
  *   tidbits   optional readouts that pop off the planet while you're landed
  *   sections  panel content, rendered by ui/sections.js
  *
- * Section types: lead, text, photo, logo, figures, facts, bullets, roles, projects,
- * papers, video, launch, courses, tracks, gallery, links, contact. Strings may contain inline HTML.
+ * Section types: lead, text, photo, pair, logo, figures, facts, bullets, roles,
+ * interests, projects, papers, video, launch, courses, tracks, gallery, links, contact. Strings may contain inline HTML.
  */
 
 const base = import.meta.env.BASE_URL;
@@ -37,7 +37,7 @@ export const bodies = [
     teaser: 'Everything here orbits me. It’s my website, I’m allowed.',
     look: { size: 4 },
     sections: [
-      { type: 'photo', src: img('quinn.jpg'), alt: 'Quinn, wearing headphones and a half smile', shape: 'round' },
+      { type: 'photo', src: img('quinn.jpg'), alt: 'Quinn, smiling, in front of the columns of the Treasury building', shape: 'round' },
       {
         type: 'lead',
         text: 'I studied electrical engineering and computer science at Columbia (EE major, CS minor) and never picked a favorite. My best work lives where the hardware and the software both have to cooperate, and I like it even more when they don’t and I get to find out why.',
@@ -48,39 +48,32 @@ export const bodies = [
 <p>When I’m not at a keyboard I’m usually holding a guitar, writing something that’s harder to play than it needs to be.</p>`,
       },
       {
+        type: 'pair',
+        items: [
+          {
+            src: img('interests/hike.jpg'),
+            alt: 'Quinn, arms crossed and grinning, on a rocky overlook above wooded hills at dusk',
+            caption: 'The Catskills',
+          },
+          {
+            src: img('interests/sea.jpg'),
+            alt: 'Quinn taking a selfie on a ship’s deck, open ocean and clouds behind him',
+            caption: 'Cruising around South America',
+          },
+        ],
+      },
+      {
         type: 'facts',
         items: [
           ['Based in', 'San Francisco'],
           ['Studied', 'EE + CS, Columbia'],
           ['Speaks', 'English, Spanish'],
-          ['Off the clock', 'Guitar, building stuff'],
+          ['Off the clock', 'Guitar, tennis, board games, building stuff'],
         ],
       },
-      { type: 'links', items: 'standard' },
-    ],
-  },
-
-  // ---------------------------------------------------------------------------
-  {
-    id: 'early',
-    label: 'Early days',
-    kicker: 'Early days',
-    title: 'Before all this',
-    subtitle: 'The jobs that came first',
-    teaser: 'Wiring up escape rooms in high school, and a summer writing about science.',
-    // Mercury: small, gray, closest to the sun. Fitting for the early stuff.
-    look: {
-      surface: 'rocky',
-      size: 0.85,
-      colors: ['#9b958d', '#4c4843', '#cfc8bd'],
-      atmosphere: '#d9d2c6',
-      tilt: 0.03,
-      spin: 0.06,
-    },
-    orbit: { radius: 9, period: 50, phase: 0.9 },
-    sections: [
       {
         type: 'roles',
+        heading: 'Before all this',
         items: [
           {
             title: 'Engineering Tech',
@@ -95,6 +88,55 @@ export const bodies = [
             when: 'Summer 2022',
             body: 'Wrote a dozen-plus articles on new scientific research. Turns out explaining things clearly is its own engineering problem.',
           },
+        ],
+      },
+      { type: 'links', items: 'standard' },
+    ],
+  },
+
+  // ---------------------------------------------------------------------------
+  {
+    id: 'interests',
+    label: 'Off the clock',
+    kicker: 'Off the clock',
+    title: 'Off the clock',
+    subtitle: 'What I do when nobody’s paying me',
+    teaser: 'Guitar, tennis, social deduction games, puzzle games with lore, and a yo-yo I picked back up.',
+    // Mercury: small, gray, closest to the sun.
+    look: {
+      surface: 'rocky',
+      size: 0.85,
+      colors: ['#9b958d', '#4c4843', '#cfc8bd'],
+      atmosphere: '#d9d2c6',
+      tilt: 0.03,
+      spin: 0.06,
+    },
+    orbit: { radius: 9, period: 50, phase: 0.9 },
+    tidbits: [
+      { label: 'Favorite game', value: 'The Witness' },
+      { label: 'Board games', value: 'Social deduction, always' },
+      { label: 'Yo-yo', value: 'Ran a club in middle school' },
+    ],
+    sections: [
+      {
+        type: 'text',
+        html: '<p>Guitar is the big one, so it gets <a href="#/music">its own planet</a>. Here’s everything else.</p>',
+      },
+      {
+        type: 'interests',
+        items: [
+          {
+            name: 'Reading',
+            note: 'Favorite author: Agatha Christie.',
+            href: 'https://www.goodreads.com/user/show/204968357',
+            linkLabel: 'Goodreads',
+          },
+          { name: 'Tennis', note: 'Trained for a few years growing up. Now it’s casual, about once a week.' },
+          { name: 'Biking', note: 'Around the city, usually along the Embarcadero.' },
+          { name: 'Board games', note: 'Social deduction, every time.' },
+          { name: 'Video games', note: 'Puzzle games with lore. The Witness is the gold standard.' },
+          { name: 'Podcasts', note: 'A sucker for The Daily.' },
+          { name: 'Yo-yo', note: 'Ran a yo-yo club in middle school. Recently picked it back up.' },
         ],
       },
     ],

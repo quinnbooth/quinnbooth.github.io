@@ -179,6 +179,131 @@
   text-underline-offset: 3px;
 }
 
+/* Pair: two portrait photos side by side */
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.pair figure {
+  margin: 0;
+}
+
+.pair img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 3px;
+}
+
+.pair figcaption {
+  margin-top: 7px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* Interests */
+
+.interests {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+/* Whatever's left on the last row stretches to fill it, so there's no gap. */
+.interest:last-child:nth-child(3n + 1) {
+  grid-column: 1 / -1;
+}
+
+.interest:last-child:nth-child(3n + 2) {
+  grid-column: span 2;
+}
+
+@media (max-width: 520px) {
+  .interests {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .interest:last-child:nth-child(n) {
+    grid-column: auto;
+  }
+
+  .interest:last-child:nth-child(2n + 1) {
+    grid-column: 1 / -1;
+  }
+}
+
+.interest {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  padding: 14px 16px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.interest__name {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.interest__note {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.interest--wide {
+  grid-column: 1 / -1;
+  background: linear-gradient(100deg, rgba(255, 177, 92, 0.1), transparent 70%);
+}
+
+.interest__name--link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.interest__name--link span {
+  font-family: var(--sans);
+  font-size: 16px;
+  color: var(--accent);
+  transition: transform 0.3s var(--ease-out);
+}
+
+.interest__name--link:hover span {
+  transform: translateX(4px);
+}
+
+.interest__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--accent);
+}
+
+.interest__link:hover {
+  color: var(--ink);
+}
+
 /* Logo */
 
 .logo {

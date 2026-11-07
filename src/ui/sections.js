@@ -29,6 +29,45 @@ const renderers = {
       ${s.caption ? `<figcaption>${s.caption}</figcaption>` : ''}
     </figure>`,
 
+  // Two photos side by side, same shape, no captions.
+  pair: (s) => `
+    <div class="pair">
+      ${s.items
+        .map(
+          (p) => `
+        <figure>
+          <img src="${p.src}" alt="${esc(p.alt)}" loading="lazy" decoding="async" />
+          ${p.caption ? `<figcaption>${p.caption}</figcaption>` : ''}
+        </figure>`,
+        )
+        .join('')}
+    </div>`,
+
+  // Hobbies as a tidy grid: a name, and an optional favorite or note under it.
+  interests: (s) => `
+    ${heading(s)}
+    <ul class="interests">
+      ${s.items
+        .map(
+          (i) => `
+        <li class="interest${i.wide ? ' interest--wide' : ''}">
+          ${
+            // In-site links (#/music) fly you there; outside links open a new tab.
+            i.href && !i.linkLabel
+              ? `<a class="interest__name interest__name--link" href="${i.href}">${i.name}<span aria-hidden="true">→</span></a>`
+              : `<span class="interest__name">${i.name}</span>`
+          }
+          ${i.note ? `<span class="interest__note">${i.note}</span>` : ''}
+          ${
+            i.href && i.linkLabel
+              ? `<a class="interest__link" href="${i.href}" target="_blank" rel="noopener">${i.linkLabel}${icons.external}</a>`
+              : ''
+          }
+        </li>`,
+        )
+        .join('')}
+    </ul>`,
+
   // A company mark, floated on a soft glow instead of boxed like a photo.
   logo: (s) => `
     <div class="logo"${s.glow ? ` style="--logo-glow: ${s.glow}"` : ''}>
