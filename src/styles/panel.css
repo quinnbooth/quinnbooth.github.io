@@ -214,32 +214,9 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   border-top: 1px solid var(--line);
   border-left: 1px solid var(--line);
-}
-
-/* Whatever's left on the last row stretches to fill it, so there's no gap. */
-.interest:last-child:nth-child(3n + 1) {
-  grid-column: 1 / -1;
-}
-
-.interest:last-child:nth-child(3n + 2) {
-  grid-column: span 2;
-}
-
-@media (max-width: 520px) {
-  .interests {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .interest:last-child:nth-child(n) {
-    grid-column: auto;
-  }
-
-  .interest:last-child:nth-child(2n + 1) {
-    grid-column: 1 / -1;
-  }
 }
 
 .interest {

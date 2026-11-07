@@ -108,16 +108,13 @@ export const bodies = [
     tidbits: [
       { label: 'Favorite game', value: 'The Witness' },
       { label: 'Board games', value: 'Social deduction, always' },
-      { label: 'Yo-yo', value: 'Ran a club in middle school' },
+      { label: 'Yo-yo', value: 'Back at it since middle school' },
     ],
     sections: [
       {
-        type: 'text',
-        html: '<p>Guitar is the big one, so it gets <a href="#/music">its own planet</a>. Here’s everything else.</p>',
-      },
-      {
         type: 'interests',
         items: [
+          { name: 'Guitar', note: 'The big one, so it gets its own planet.', href: '#/music', linkLabel: 'Fly there' },
           {
             name: 'Reading',
             note: 'Favorite author: Agatha Christie.',
@@ -129,7 +126,7 @@ export const bodies = [
           { name: 'Board games', note: 'Social deduction, every time.' },
           { name: 'Video games', note: 'Puzzle games with lore. The Witness is the gold standard.' },
           { name: 'Podcasts', note: 'A sucker for The Daily.' },
-          { name: 'Yo-yo', note: 'Ran a yo-yo club in middle school. Recently picked it back up.' },
+          { name: 'Yo-yo', note: 'Was in a yo-yo club in middle school. Recently picked it back up.' },
         ],
       },
     ],
